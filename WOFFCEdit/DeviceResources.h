@@ -75,7 +75,7 @@ namespace DX
         }
 
     private:
-        void GetHardwareAdapter(IDXGIAdapter1** ppAdapter);
+        void GetHardwareAdapter(IDXGIAdapter1** ppAdapter) const;
 
         // Direct3D objects.
         Microsoft::WRL::ComPtr<ID3D11Device>            m_d3dDevice;

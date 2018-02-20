@@ -483,7 +483,7 @@ void DX::DeviceResources::Present()
 
 // This method acquires the first available hardware adapter.
 // If no such adapter can be found, *ppAdapter will be set to nullptr.
-void DX::DeviceResources::GetHardwareAdapter(IDXGIAdapter1** ppAdapter)
+void DX::DeviceResources::GetHardwareAdapter(IDXGIAdapter1** ppAdapter) const
 {
     *ppAdapter = nullptr;
 

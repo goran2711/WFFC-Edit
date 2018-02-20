@@ -27,9 +27,8 @@ ToolMain::~ToolMain()
 }
 
 
-int ToolMain::getCurrentSelectionID()
+int ToolMain::getCurrentSelectionID() const
 {
-
 	return m_selectedObject;
 }
 
