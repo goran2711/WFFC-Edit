@@ -2,9 +2,8 @@
 
 #include <string>
 
-class ChunkObject
+struct ChunkObject
 {
-public:
 	ChunkObject();
 	~ChunkObject();
 

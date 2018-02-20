@@ -2,9 +2,8 @@
 #include "pch.h"
 
 
-class DisplayObject
+struct DisplayObject
 {
-public:
 	DisplayObject();
 	~DisplayObject();
 

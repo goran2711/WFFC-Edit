@@ -6,9 +6,8 @@
 //This object should accurately and totally reflect the information stored in the object table
 
 
-class SceneObject
+struct SceneObject
 {
-public:
 	SceneObject();
 	~SceneObject();
 
