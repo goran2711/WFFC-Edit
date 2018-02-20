@@ -16,8 +16,8 @@ class MFCMain : public CWinApp
 public:
 	MFCMain();
 	~MFCMain();
-	BOOL InitInstance();
-	int  Run();
+	BOOL InitInstance() override;
+	int  Run() override;
 
 private:
 

@@ -19,7 +19,7 @@ public:
 
 	// Overrides
 protected:
-	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+	virtual BOOL PreCreateWindow(CREATESTRUCT& cs) override;
 
 	// Implementation
 public:
