@@ -4,8 +4,6 @@
 
 struct ChunkObject
 {
-	ChunkObject();
-	~ChunkObject();
 
 	int ID;
 	std::string name;

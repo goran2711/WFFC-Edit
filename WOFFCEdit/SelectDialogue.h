@@ -13,8 +13,10 @@ class SelectDialogue : public CDialogEx
 
 public:
 	SelectDialogue(CWnd* pParent, std::vector<SceneObject>* SceneGraph);   // modal // takes in out scenegraph in the constructor
-	SelectDialogue(CWnd* pParent = NULL);
-	virtual ~SelectDialogue();
+	explicit SelectDialogue(CWnd* pParent = NULL);
+
+	virtual ~SelectDialogue() = default;
+
 	void SetObjectData(std::vector<SceneObject>* SceneGraph, int * Selection);	//passing in pointers to the data the class will operate on.
 	
 // Dialog Data

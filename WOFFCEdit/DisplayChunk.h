@@ -9,8 +9,6 @@
 class DisplayChunk
 {
 public:
-	DisplayChunk();
-	~DisplayChunk();
 	void PopulateChunkData(ChunkObject * SceneChunk);
 	void RenderBatch(std::shared_ptr<DX::DeviceResources>  DevResources);
 	void InitialiseBatch();	//initial setup, base coordinates etc based on scale
@@ -30,10 +28,10 @@ private:
 	BYTE m_heightMap[TERRAINRESOLUTION*TERRAINRESOLUTION];
 	void CalculateTerrainNormals();
 
-	float	m_terrainHeightScale;
-	int		m_terrainSize;				//size of terrain in metres
-	float	m_textureCoordStep;			//step in texture coordinates between each vertex row / column
-	float   m_terrainPositionScalingFactor;	//factor we multiply the position by to convert it from its native resolution( 0- Terrain Resolution) to full scale size in metres dictated by m_Terrainsize
+	float	m_terrainHeightScale = 0.25;	//convert our 0-256 terrain to 64
+	int		m_terrainSize = 512;				//size of terrain in metres
+	float	m_textureCoordStep = 1.f / (TERRAINRESOLUTION - 1);			//step in texture coordinates between each vertex row / column (-1 because its split into chunks. not vertices.  we want the last one in each row to have tex coord 1)
+	float   m_terrainPositionScalingFactor = m_terrainSize / (TERRAINRESOLUTION - 1);	//factor we multiply the position by to convert it from its native resolution( 0- Terrain Resolution) to full scale size in metres dictated by m_Terrainsize
 	
 	std::string m_name;
 	int m_chunk_x_size_metres;

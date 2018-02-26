@@ -27,10 +27,6 @@ SelectDialogue::SelectDialogue(CWnd * pParent)			//constructor used in modeless
 {
 }
 
-SelectDialogue::~SelectDialogue()
-{
-}
-
 ///pass through pointers to the data in the tool we want to manipulate
 void SelectDialogue::SetObjectData(std::vector<SceneObject>* SceneGraph, int * selection)
 {

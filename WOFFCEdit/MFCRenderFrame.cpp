@@ -8,15 +8,6 @@
 
 // CChildView
 
-CChildRender::CChildRender()
-{
-}
-
-CChildRender::~CChildRender()
-{
-}
-
-
 BEGIN_MESSAGE_MAP(CChildRender, CWnd)
 	ON_WM_PAINT()
 END_MESSAGE_MAP()

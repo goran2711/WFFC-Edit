@@ -3,23 +3,6 @@
 #include <vector>
 #include <sstream>
 
-//ToolMain Class
-ToolMain::ToolMain()
-{
-
-	m_currentChunk = 0;		//default value
-	m_selectedObject = 0;	//initial selection ID
-	m_sceneGraph.clear();	//clear the vector for the scenegraph
-	m_databaseConnection = NULL;
-
-	//zero input commands
-	m_toolInputCommands.forward		= false;
-	m_toolInputCommands.back		= false;
-	m_toolInputCommands.left		= false;
-	m_toolInputCommands.right		= false;
-	
-}
-
 
 ToolMain::~ToolMain()
 {

@@ -6,20 +6,6 @@
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
-DisplayChunk::DisplayChunk()
-{
-	//terrain size in meters. note that this is hard coded here, we COULD get it from the terrain chunk along with the other info from the tool if we want to be more flexible.
-	m_terrainSize = 512;
-	m_terrainHeightScale = 0.25;  //convert our 0-256 terrain to 64
-	m_textureCoordStep = 1.0 / (TERRAINRESOLUTION-1);	//-1 becuase its split into chunks. not vertices.  we want tthe last one in each row to have tex coord 1
-	m_terrainPositionScalingFactor = m_terrainSize / (TERRAINRESOLUTION-1);
-}
-
-
-DisplayChunk::~DisplayChunk()
-{
-}
-
 void DisplayChunk::PopulateChunkData(ChunkObject * SceneChunk)
 {
 	m_name = SceneChunk->name;

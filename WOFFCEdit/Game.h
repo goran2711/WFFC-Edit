@@ -20,9 +20,6 @@ class Game : public DX::IDeviceNotify
 {
 public:
 
-	Game();
-	~Game();
-
 	// Initialization and management
 	void Initialize(HWND window, int width, int height);
 	void SetGridState(bool state);
@@ -73,18 +70,18 @@ private:
 	InputCommands						m_InputCommands;
 
 	//functionality
-	float								m_movespeed;
+	float								m_movespeed = 0.3f;
 
 	//camera
-	DirectX::SimpleMath::Vector3		m_camPosition;
+	DirectX::SimpleMath::Vector3		m_camPosition{ 0.f, 3.7f, -3.5f };
 	DirectX::SimpleMath::Vector3		m_camOrientation;
 	DirectX::SimpleMath::Vector3		m_camLookAt;
 	DirectX::SimpleMath::Vector3		m_camLookDirection;
 	DirectX::SimpleMath::Vector3		m_camRight;
-	float m_camRotRate;
+	float m_camRotRate = 3.f;
 
 	//control variables
-	bool m_grid;							//grid rendering on / off
+	bool m_grid = false;						//grid rendering on / off
 	// Device resources.
     std::shared_ptr<DX::DeviceResources>    m_deviceResources;
 

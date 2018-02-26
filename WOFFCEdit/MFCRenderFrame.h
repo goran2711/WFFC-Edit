@@ -9,7 +9,6 @@ class CChildRender : public CWnd
 {
 	// Construction
 public:
-	CChildRender();
 
 	// Attributes
 public:
@@ -23,7 +22,7 @@ protected:
 
 	// Implementation
 public:
-	virtual ~CChildRender();
+	virtual ~CChildRender() = default;
 
 	// Generated message map functions
 protected:

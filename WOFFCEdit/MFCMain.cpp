@@ -13,7 +13,7 @@ END_MESSAGE_MAP()
 BOOL MFCMain::InitInstance()
 {
 	//instanciate the mfc frame
-	m_frame = new CMyFrame();
+	m_frame = new CMyFrame;
 	m_pMainWnd = m_frame;
 
 	m_frame->Create(	NULL,
@@ -106,14 +106,4 @@ void MFCMain::ToolBarButton1()
 {
 	
 	m_ToolSystem.onActionSave();
-}
-
-
-MFCMain::MFCMain()
-{
-}
-
-
-MFCMain::~MFCMain()
-{
 }

@@ -13,62 +13,13 @@ using namespace DirectX::SimpleMath;
 
 using Microsoft::WRL::ComPtr;
 
-Game::Game()
-
-{
-    m_deviceResources = std::make_unique<DX::DeviceResources>();
-    m_deviceResources->RegisterDeviceNotify(this);
-	m_displayList.clear();
-	
-	//initial Settings
-	//modes
-	m_grid = false;
-
-	//functional
-	m_movespeed = 0.30;
-	m_camRotRate = 3.0;
-
-	//camera
-	m_camPosition.x = 0.0f;
-	m_camPosition.y = 3.7f;
-	m_camPosition.z = -3.5f;
-
-	m_camOrientation.x = 0;
-	m_camOrientation.y = 0;
-	m_camOrientation.z = 0;
-
-	m_camLookAt.x = 0.0f;
-	m_camLookAt.y = 0.0f;
-	m_camLookAt.z = 0.0f;
-
-	m_camLookDirection.x = 0.0f;
-	m_camLookDirection.y = 0.0f;
-	m_camLookDirection.z = 0.0f;
-
-	m_camRight.x = 0.0f;
-	m_camRight.y = 0.0f;
-	m_camRight.z = 0.0f;
-
-	m_camOrientation.x = 0.0f;
-	m_camOrientation.y = 0.0f;
-	m_camOrientation.z = 0.0f;
-
-}
-
-Game::~Game()
-{
-
-#ifdef DXTK_AUDIO
-    if (m_audEngine)
-    {
-        m_audEngine->Suspend();
-    }
-#endif
-}
 
 // Initialize the Direct3D resources required to run.
 void Game::Initialize(HWND window, int width, int height)
 {
+	m_deviceResources = std::make_unique<DX::DeviceResources>();
+	m_deviceResources->RegisterDeviceNotify(this);
+
     m_gamePad = std::make_unique<GamePad>();
 
     m_keyboard = std::make_unique<Keyboard>();
@@ -91,7 +42,8 @@ void Game::Initialize(HWND window, int width, int height)
     eflags = eflags | AudioEngine_Debug;
 #endif
 
-    m_audEngine = std::make_unique<AudioEngine>(eflags);
+	// Custom deleter to ensure the audio engine is suspended upon deletion of the Game object due to the multi-threaded nature of XAudio2
+	m_audEngine = std::make_unique<AudioEngine>(eflags, [](AudioEngine* audEngine) { audEngine->Suspend(); delete audEngine; });
 
     m_audioEvent = 0;
     m_audioTimerAcc = 10.f;
@@ -410,13 +362,17 @@ void Game::BuildDisplayList(std::vector<SceneObject> * SceneGraph)
 		//Load Texture
 		std::wstring texturewstr = StringToWCHART(SceneGraph->at(i).tex_diffuse_path);								//convect string to Wchar
 		HRESULT rs;
-		rs = CreateDDSTextureFromFile(device, texturewstr.c_str(), nullptr, &newDisplayObject.m_texture_diffuse);	//load tex into Shader resource
+		ID3D11ShaderResourceView* texture_diffuse = nullptr;
+		rs = CreateDDSTextureFromFile(device, texturewstr.c_str(), nullptr, &texture_diffuse);	//load tex into Shader resource
 
 		//if texture fails.  load error default
 		if (rs)
 		{
-			CreateDDSTextureFromFile(device, L"database/data/Error.dds", nullptr, &newDisplayObject.m_texture_diffuse);	//load tex into Shader resource
+			CreateDDSTextureFromFile(device, L"database/data/Error.dds", nullptr, &texture_diffuse);	//load tex into Shader resource
 		}
+
+		// Texture is handled by RAII
+		newDisplayObject.m_texture_diffuse = texture_diffuse;
 
 		//apply new texture to models effect
 		newDisplayObject.m_model->UpdateEffects([&](IEffect* effect) //This uses a Lambda function,  if you dont understand it: Look it up.
@@ -424,7 +380,7 @@ void Game::BuildDisplayList(std::vector<SceneObject> * SceneGraph)
 			auto lights = dynamic_cast<BasicEffect*>(effect);
 			if (lights)
 			{
-				lights->SetTexture(newDisplayObject.m_texture_diffuse);			
+				lights->SetTexture(newDisplayObject.m_texture_diffuse.Get());			
 			}
 		});
 
@@ -447,8 +403,7 @@ void Game::BuildDisplayList(std::vector<SceneObject> * SceneGraph)
 		newDisplayObject.m_render = SceneGraph->at(i).editor_render;
 		newDisplayObject.m_wireframe = SceneGraph->at(i).editor_wireframe;
 		
-		m_displayList.push_back(newDisplayObject);
-		
+		m_displayList.push_back(newDisplayObject);		
 	}
 		
 		

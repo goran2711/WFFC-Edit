@@ -12,7 +12,11 @@
 class ToolMain
 {
 public: //methods
-	ToolMain();
+	ToolMain() = default;
+
+	// Rule of three
+	ToolMain(const ToolMain&) = delete;
+	ToolMain& operator=(const ToolMain&) = delete;
 	~ToolMain();
 
 	//onAction - These are the interface to MFC
@@ -29,7 +33,7 @@ public: //methods
 public:	//variables
 	std::vector<SceneObject>    m_sceneGraph;	//our scenegraph storing all the objects in the current chunk
 	ChunkObject					m_chunk;		//our landscape chunk
-	int m_selectedObject;						//ID of current Selection
+	int m_selectedObject = 0;					//ID of current Selection
 
 private:	//methods
 	void	onContentAdded();
@@ -42,11 +46,11 @@ private:	//variables
 	InputCommands m_toolInputCommands;		//input commands that we want to use and possibly pass over to the renderer
 	CRect	WindowRECT;		//Window area rectangle. 
 	char	m_keyArray[256];
-	sqlite3 *m_databaseConnection;	//sqldatabase handle
+	sqlite3 *m_databaseConnection = nullptr;	//sqldatabase handle
 
 	int m_width;		//dimensions passed to directX
 	int m_height;
-	int m_currentChunk;			//the current chunk of thedatabase that we are operating on.  Dictates loading and saving. 
+	int m_currentChunk = 0;			//the current chunk of thedatabase that we are operating on.  Dictates loading and saving. 
 	
 
 	

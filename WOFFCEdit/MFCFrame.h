@@ -19,13 +19,12 @@ public:
 	CChildRender	m_DirXView;
 
 public:
-	CMyFrame();
 	void SetCurrentSelectionID(int ID);
 	afx_msg void OnUpdatePage(CCmdUI *pCmdUI);
 
 
 private:	//overrides
-	int		m_selectionID;	//
+	int		m_selectionID = 999;	//an obviously wrong selection ID,  to verify its working
 
 	//note the afx_message keyword is linking this method to message map access.
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

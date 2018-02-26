@@ -17,12 +17,6 @@ static UINT indicators[] =
 //FRAME CLASS
 
 
-//frame initialiser
-CMyFrame::CMyFrame()
-{
-	m_selectionID = 999; //an obviously wrong selection ID,  to verify its working
-}
-
 void CMyFrame::SetCurrentSelectionID(int ID)
 {
 	m_selectionID = ID;
