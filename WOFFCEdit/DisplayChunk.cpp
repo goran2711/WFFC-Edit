@@ -57,7 +57,7 @@ void DisplayChunk::InitialiseBatch()
 		for (size_t j = 0; j < TERRAINRESOLUTION; j++)
 		{
 			index = (TERRAINRESOLUTION * i) + j;
-			m_terrainGeometry[i][j].position =			Vector3(j*m_terrainPositionScalingFactor-(0.5*m_terrainSize), (float)(m_heightMap[index])*m_terrainHeightScale, i*m_terrainPositionScalingFactor-(0.5*m_terrainSize));	//This will create a terrain going from -64->64.  rather than 0->128.  So the center of the terrain is on the origin
+			m_terrainGeometry[i][j].position =			Vector3(j*m_terrainPositionScalingFactor-(0.5f*m_terrainSize), (float)(m_heightMap[index])*m_terrainHeightScale, i*m_terrainPositionScalingFactor-(0.5f*m_terrainSize));	//This will create a terrain going from -64->64.  rather than 0->128.  So the center of the terrain is on the origin
 			m_terrainGeometry[i][j].normal =			Vector3(0.0f, 1.0f, 0.0f);						//standard y =up
 			m_terrainGeometry[i][j].textureCoordinate =	Vector2(((float)m_textureCoordStep*j)*m_tex_diffuse_tiling, ((float)m_textureCoordStep*i)*m_tex_diffuse_tiling);				//Spread tex coords so that its distributed evenly across the terrain from 0-1
 			
@@ -77,9 +77,9 @@ void DisplayChunk::LoadHeightMap(std::shared_ptr<DX::DeviceResources>  DevResour
 
 	// Open The File In Read / Binary Mode.
 
-	pFile = fopen(m_heightmap_path.c_str(), "rb");
+	errno_t ret = fopen_s(&pFile, m_heightmap_path.c_str(), "rb");
 	// Check To See If We Found The File And Could Open It
-	if (pFile == NULL)
+	if (ret != 0 || pFile == NULL)
 	{
 		// Display Error Message And Stop The Function
 		MessageBox(NULL, L"Can't Find The Height Map!", L"Error", MB_OK);
@@ -135,9 +135,9 @@ void DisplayChunk::SaveHeightMap()
 	FILE *pFile = NULL;
 
 	// Open The File In Read / Binary Mode.
-	pFile = fopen(m_heightmap_path.c_str(), "wb+");;
+	errno_t ret = fopen_s(&pFile, m_heightmap_path.c_str(), "wb+");;
 	// Check To See If We Found The File And Could Open It
-	if (pFile == NULL)
+	if (ret != 0 || pFile == NULL)
 	{
 		// Display Error Message And Stop The Function
 		MessageBox(NULL, L"Can't Find The Height Map!", L"Error", MB_OK);
@@ -172,7 +172,6 @@ void DisplayChunk::GenerateHeightmap()
 
 void DisplayChunk::CalculateTerrainNormals()
 {
-	int index1, index2, index3, index4;
 	DirectX::SimpleMath::Vector3 upDownVector, leftRightVector, normalVector;
 
 

@@ -107,8 +107,8 @@ void Game::Update(DX::StepTimer const& timer)
 	}
 
 	//create look direction from Euler angles in m_camOrientation
-	m_camLookDirection.x = sin((m_camOrientation.y)*3.1415 / 180);
-	m_camLookDirection.z = cos((m_camOrientation.y)*3.1415 / 180);
+	m_camLookDirection.x = sinf((m_camOrientation.y)*3.1415f / 180.f);
+	m_camLookDirection.z = cosf((m_camOrientation.y)*3.1415f / 180.f);
 	m_camLookDirection.Normalize();
 
 	//create right vector from look Direction
@@ -196,7 +196,6 @@ void Game::Render()
 	}
 	//CAMERA POSITION ON HUD
 	m_sprites->Begin();
-	WCHAR   Buffer[256];
 	std::wstring var = L"Cam X: " + std::to_wstring(m_camPosition.x) + L"Cam Z: " + std::to_wstring(m_camPosition.z);
 	m_font->DrawString(m_sprites.get(), var.c_str() , XMFLOAT2(100, 10), Colors::Yellow);
 	m_sprites->End();
@@ -210,9 +209,9 @@ void Game::Render()
 		const XMVECTORF32 translate = { m_displayList[i].m_position.x, m_displayList[i].m_position.y, m_displayList[i].m_position.z };
 
 		//convert degrees into radians for rotation matrix
-		XMVECTOR rotate = Quaternion::CreateFromYawPitchRoll(m_displayList[i].m_orientation.y *3.1415 / 180,
-															m_displayList[i].m_orientation.x *3.1415 / 180,
-															m_displayList[i].m_orientation.z *3.1415 / 180);
+		XMVECTOR rotate = Quaternion::CreateFromYawPitchRoll(m_displayList[i].m_orientation.y *3.1415f / 180.f,
+															m_displayList[i].m_orientation.x *3.1415f / 180.f,
+															m_displayList[i].m_orientation.z *3.1415f / 180.f);
 
 		XMMATRIX local = m_world * XMMatrixTransformation(g_XMZero, Quaternion::Identity, scale, g_XMZero, rotate, translate);
 
