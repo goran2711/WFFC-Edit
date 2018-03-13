@@ -18,6 +18,7 @@ int ToolMain::getCurrentSelectionID() const
 void ToolMain::onActionInitialise(HWND handle, int width, int height)
 {
 	//window size, handle etc for directX
+	m_toolHandle = handle;
 	m_width		= width;
 	m_height	= height;
 
