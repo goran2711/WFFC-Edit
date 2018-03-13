@@ -20,7 +20,7 @@ void ToolMain::onActionInitialise(HWND handle, int width, int height)
 	//window size, handle etc for directX
 	m_width		= width;
 	m_height	= height;
-	m_d3dRenderer.GetDefaultSize(m_width, m_height);
+
 	m_d3dRenderer.Initialize(handle, m_width, m_height);
 
 	//database connection establish
