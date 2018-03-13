@@ -514,6 +514,9 @@ void Game::CreateWindowSizeDependentResources()
     );
 
     m_batchEffect->SetProjection(m_projection);
+
+	if (m_displayChunk.m_terrainEffect)
+		m_displayChunk.m_terrainEffect->SetProjection(m_projection);
 	
 }
 
