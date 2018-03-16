@@ -233,6 +233,11 @@ void ToolMain::onActionSaveTerrain()
 	m_d3dRenderer.SaveDisplayChunk(&m_chunk);
 }
 
+void ToolMain::OnWindowSizeChanged(int width, int height)
+{
+    m_d3dRenderer.OnWindowSizeChanged(width, height);
+}
+
 void ToolMain::Tick(MSG *msg)
 {
 	//do we have a selection

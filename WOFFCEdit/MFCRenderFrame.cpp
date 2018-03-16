@@ -1,5 +1,5 @@
-
 #include "MFCRenderFrame.h"
+#include "ToolMain.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -10,6 +10,7 @@
 
 BEGIN_MESSAGE_MAP(CChildRender, CWnd)
 	ON_WM_PAINT()
+    ON_WM_SIZE()
 END_MESSAGE_MAP()
 
 
@@ -34,6 +35,10 @@ void CChildRender::OnPaint()
 	CPaintDC dc(this); // device context for painting
 }
 
+void CChildRender::OnSize(UINT nType, int width, int height)
+{
+    CWnd::OnSize(nType, width, height);
 
-
-
+    if (toolSystem)
+        toolSystem->OnWindowSizeChanged(width, height);
+}

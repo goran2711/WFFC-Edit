@@ -37,6 +37,8 @@ BOOL MFCMain::InitInstance()
 
 	m_ToolSystem.onActionInitialise(m_toolHandle, m_width, m_height);
 
+    m_frame->m_DirXView.toolSystem = &m_ToolSystem;
+
 	return TRUE;
 }
 
