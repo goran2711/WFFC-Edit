@@ -18,6 +18,10 @@
 // provides a game loop.
 class Game : public DX::IDeviceNotify
 {
+    constexpr static float DEFAULT_FOV_DEG  = 75.f;
+    constexpr static float NEAR_PLANE       = 0.01f;
+    constexpr static float FAR_PLANE        = 1000.f;
+
 public:
 
 	// Initialization and management

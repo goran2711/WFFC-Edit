@@ -107,8 +107,8 @@ void Game::Update(DX::StepTimer const& timer)
 	}
 
 	//create look direction from Euler angles in m_camOrientation
-	m_camLookDirection.x = sinf((m_camOrientation.y)*3.1415f / 180.f);
-	m_camLookDirection.z = cosf((m_camOrientation.y)*3.1415f / 180.f);
+	m_camLookDirection.x = sinf(XMConvertToRadians(m_camOrientation.y));
+	m_camLookDirection.z = cosf(XMConvertToRadians(m_camOrientation.y));
 	m_camLookDirection.Normalize();
 
 	//create right vector from look Direction
@@ -204,9 +204,9 @@ void Game::Render()
 		const XMVECTORF32 translate = { m_displayList[i].m_position.x, m_displayList[i].m_position.y, m_displayList[i].m_position.z };
 
 		//convert degrees into radians for rotation matrix
-		XMVECTOR rotate = Quaternion::CreateFromYawPitchRoll(m_displayList[i].m_orientation.y *3.1415f / 180.f,
-															m_displayList[i].m_orientation.x *3.1415f / 180.f,
-															m_displayList[i].m_orientation.z *3.1415f / 180.f);
+		XMVECTOR rotate = Quaternion::CreateFromYawPitchRoll(XMConvertToRadians(m_displayList[i].m_orientation.y),
+															XMConvertToRadians(m_displayList[i].m_orientation.x),
+															XMConvertToRadians(m_displayList[i].m_orientation.z));
 
 		XMMATRIX local = m_world * XMMatrixTransformation(g_XMZero, Quaternion::Identity, scale, g_XMZero, rotate, translate);
 
@@ -500,7 +500,7 @@ void Game::CreateWindowSizeDependentResources()
 {
     auto size = m_deviceResources->GetOutputSize();
     float aspectRatio = float(size.right) / float(size.bottom);
-    float fovAngleY = 70.0f * XM_PI / 180.0f;
+    float fovAngleY = XMConvertToRadians(DEFAULT_FOV_DEG);
 
     // This is a simple example of change that can be made when the app is in
     // portrait or snapped view.
@@ -513,8 +513,8 @@ void Game::CreateWindowSizeDependentResources()
     m_projection = Matrix::CreatePerspectiveFieldOfView(
         fovAngleY,
         aspectRatio,
-        0.01f,
-        1000.0f
+        NEAR_PLANE,
+        FAR_PLANE
     );
 
     m_batchEffect->SetProjection(m_projection);
