@@ -227,6 +227,9 @@ void Game::Render()
 	context->RSSetState(m_states->CullNone());
 //	context->RSSetState(m_states->Wireframe());		//uncomment for wireframe
 
+    ID3D11SamplerState* sampler[] = { m_states->AnisotropicWrap() };
+    context->PSSetSamplers(0, 1, sampler);
+
 	//Render the batch,  This is handled in the Display chunk becuase it has the potential to get complex
 	m_displayChunk.RenderBatch(m_deviceResources);
 
