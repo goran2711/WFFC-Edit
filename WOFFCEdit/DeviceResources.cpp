@@ -27,7 +27,7 @@ namespace
             nullptr,                    // No need to keep the D3D device reference.
             nullptr,                    // No need to know the feature level.
             nullptr                     // No need to keep the D3D device context reference.
-            );
+        );
 
         return SUCCEEDED(hr);
     }
@@ -49,7 +49,7 @@ DX::DeviceResources::DeviceResources(DXGI_FORMAT backBufferFormat, DXGI_FORMAT d
 }
 
 // Configures the Direct3D device, and stores handles to it and the device context.
-void DX::DeviceResources::CreateDeviceResources() 
+void DX::DeviceResources::CreateDeviceResources()
 {
     UINT creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 
@@ -107,7 +107,7 @@ void DX::DeviceResources::CreateDeviceResources()
             m_d3dDevice.ReleaseAndGetAddressOf(),   // Returns the Direct3D device created.
             &m_d3dFeatureLevel,                     // Returns feature level of device created.
             m_d3dContext.ReleaseAndGetAddressOf()   // Returns the device immediate context.
-            );
+        );
 
         if (hr == E_INVALIDARG && featLevelCount > 1)
         {
@@ -125,7 +125,7 @@ void DX::DeviceResources::CreateDeviceResources()
                 m_d3dDevice.ReleaseAndGetAddressOf(),
                 &m_d3dFeatureLevel,
                 m_d3dContext.ReleaseAndGetAddressOf()
-                );
+            );
         }
     }
 #if defined(NDEBUG)
@@ -150,7 +150,7 @@ void DX::DeviceResources::CreateDeviceResources()
             m_d3dDevice.ReleaseAndGetAddressOf(),
             &m_d3dFeatureLevel,
             m_d3dContext.ReleaseAndGetAddressOf()
-            );
+        );
 
         if (hr == E_INVALIDARG && featLevelCount > 1)
         {
@@ -168,7 +168,7 @@ void DX::DeviceResources::CreateDeviceResources()
                 m_d3dDevice.ReleaseAndGetAddressOf(),
                 &m_d3dFeatureLevel,
                 m_d3dContext.ReleaseAndGetAddressOf()
-                );
+            );
         }
 
         if (SUCCEEDED(hr))
@@ -191,7 +191,7 @@ void DX::DeviceResources::CreateDeviceResources()
             d3dInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, true);
             d3dInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, true);
 #endif
-            D3D11_MESSAGE_ID hide [] =
+            D3D11_MESSAGE_ID hide[] =
             {
                 D3D11_MESSAGE_ID_SETPRIVATEDATA_CHANGINGPARAMS,
             };
@@ -212,7 +212,7 @@ void DX::DeviceResources::CreateDeviceResources()
 }
 
 // These resources need to be recreated every time the window size is changed.
-void DX::DeviceResources::CreateWindowSizeDependentResources() 
+void DX::DeviceResources::CreateWindowSizeDependentResources()
 {
     if (!m_window)
     {
@@ -220,7 +220,7 @@ void DX::DeviceResources::CreateWindowSizeDependentResources()
     }
 
     // Clear the previous window size specific context.
-    ID3D11RenderTargetView* nullViews[] = {nullptr};
+    ID3D11RenderTargetView* nullViews[] = { nullptr };
     m_d3dContext->OMSetRenderTargets(_countof(nullViews), nullViews, nullptr);
     m_d3dRenderTargetView.Reset();
     m_d3dDepthStencilView.Reset();
@@ -239,7 +239,7 @@ void DX::DeviceResources::CreateWindowSizeDependentResources()
             backBufferHeight,
             m_backBufferFormat,
             0
-            );
+        );
 
         if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
         {
@@ -289,7 +289,7 @@ void DX::DeviceResources::CreateWindowSizeDependentResources()
             swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
             swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
             swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
-			
+
 
             DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsSwapChainDesc = { 0 };
             fsSwapChainDesc.Windowed = TRUE;
@@ -301,7 +301,7 @@ void DX::DeviceResources::CreateWindowSizeDependentResources()
                 &swapChainDesc,
                 &fsSwapChainDesc,
                 nullptr, m_swapChain1.ReleaseAndGetAddressOf()
-                ));
+            ));
 
             DX::ThrowIfFailed(m_swapChain1.As(&m_swapChain));
         }
@@ -324,7 +324,7 @@ void DX::DeviceResources::CreateWindowSizeDependentResources()
                 m_d3dDevice.Get(),
                 &swapChainDesc,
                 m_swapChain.ReleaseAndGetAddressOf()
-                ));
+            ));
         }
 
         // This class does not support exclusive full-screen mode and prevents DXGI from responding to the ALT+ENTER shortcut
@@ -339,7 +339,7 @@ void DX::DeviceResources::CreateWindowSizeDependentResources()
         backBuffer.Get(),
         nullptr,
         m_d3dRenderTargetView.ReleaseAndGetAddressOf()
-        ));
+    ));
 
     if (m_depthBufferFormat != DXGI_FORMAT_UNKNOWN)
     {
@@ -351,30 +351,30 @@ void DX::DeviceResources::CreateWindowSizeDependentResources()
             1, // This depth stencil view has only one texture.
             1, // Use a single mipmap level.
             D3D11_BIND_DEPTH_STENCIL
-            );
+        );
 
         ComPtr<ID3D11Texture2D> depthStencil;
         DX::ThrowIfFailed(m_d3dDevice->CreateTexture2D(
             &depthStencilDesc,
             nullptr,
             depthStencil.GetAddressOf()
-            ));
+        ));
 
         CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2D);
         DX::ThrowIfFailed(m_d3dDevice->CreateDepthStencilView(
             depthStencil.Get(),
             &depthStencilViewDesc,
             m_d3dDepthStencilView.ReleaseAndGetAddressOf()
-            ));
+        ));
     }
-    
+
     // Set the 3D rendering viewport to target the entire window.
     m_screenViewport = CD3D11_VIEWPORT(
         0.0f,
         0.0f,
         static_cast<float>(backBufferWidth),
         static_cast<float>(backBufferHeight)
-        );
+    );
 }
 
 // This method is called when the Win32 window is created (or re-created).
@@ -443,7 +443,7 @@ void DX::DeviceResources::HandleDeviceLost()
 }
 
 // Present the contents of the swap chain to the screen.
-void DX::DeviceResources::Present() 
+void DX::DeviceResources::Present()
 {
     // The first argument instructs DXGI to block until VSync, putting the application
     // to sleep until the next VSync. This ensures we don't waste any cycles rendering
@@ -457,7 +457,7 @@ void DX::DeviceResources::Present()
         // overwritten. If dirty or scroll rects are used, this call should be removed.
         m_d3dContext1->DiscardView(m_d3dRenderTargetView.Get());
 
-        if(m_d3dDepthStencilView)
+        if (m_d3dDepthStencilView)
         {
             // Discard the contents of the depth stencil.
             m_d3dContext1->DiscardView(m_d3dDepthStencilView.Get());

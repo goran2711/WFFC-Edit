@@ -18,72 +18,72 @@
 // provides a game loop.
 class Game : public DX::IDeviceNotify
 {
-    constexpr static float DEFAULT_FOV_DEG  = 75.f;
-    constexpr static float NEAR_PLANE       = 0.01f;
-    constexpr static float FAR_PLANE        = 1000.f;
+    constexpr static float DEFAULT_FOV_DEG = 75.f;
+    constexpr static float NEAR_PLANE = 0.01f;
+    constexpr static float FAR_PLANE = 1000.f;
 
 public:
 
-	// Initialization and management
-	void Initialize(HWND window, int width, int height);
-	void SetGridState(bool state);
+    // Initialization and management
+    void Initialize(HWND window, int width, int height);
+    void SetGridState(bool state);
 
-	// Basic game loop
-	void Tick(InputCommands * Input);
-	void Render();
+    // Basic game loop
+    void Tick(InputCommands * Input);
+    void Render();
 
-	// Rendering helpers
-	void Clear();
+    // Rendering helpers
+    void Clear();
 
-	// IDeviceNotify
-	virtual void OnDeviceLost() override;
-	virtual void OnDeviceRestored() override;
+    // IDeviceNotify
+    virtual void OnDeviceLost() override;
+    virtual void OnDeviceRestored() override;
 
-	// Messages
-	void OnActivated();
-	void OnDeactivated();
-	void OnSuspending();
-	void OnResuming();
-	void OnWindowSizeChanged(int width, int height);
+    // Messages
+    void OnActivated();
+    void OnDeactivated();
+    void OnSuspending();
+    void OnResuming();
+    void OnWindowSizeChanged(int width, int height);
 
-	//tool specific
-	void BuildDisplayList(std::vector<SceneObject> * SceneGraph); //note vector passed by reference 
-	void BuildDisplayChunk(ChunkObject *SceneChunk);
-	void SaveDisplayChunk(ChunkObject *SceneChunk);	//saves geometry et al
-	void ClearDisplayList();
+    //tool specific
+    void BuildDisplayList(std::vector<SceneObject> * SceneGraph); //note vector passed by reference 
+    void BuildDisplayChunk(ChunkObject *SceneChunk);
+    void SaveDisplayChunk(ChunkObject *SceneChunk);	//saves geometry et al
+    void ClearDisplayList();
 
 #ifdef DXTK_AUDIO
-	void NewAudioDevice();
+    void NewAudioDevice();
 #endif
 
 private:
 
-	void Update(DX::StepTimer const& timer);
+    void Update(DX::StepTimer const& timer);
 
-	void CreateDeviceDependentResources();
-	void CreateWindowSizeDependentResources();
+    void CreateDeviceDependentResources();
+    void CreateWindowSizeDependentResources();
 
-	void XM_CALLCONV DrawGrid(DirectX::FXMVECTOR xAxis, DirectX::FXMVECTOR yAxis, DirectX::FXMVECTOR origin, size_t xdivs, size_t ydivs, DirectX::GXMVECTOR color);
+    void XM_CALLCONV DrawGrid(DirectX::FXMVECTOR xAxis, DirectX::FXMVECTOR yAxis, DirectX::FXMVECTOR origin, size_t xdivs, size_t ydivs, DirectX::GXMVECTOR color);
 
-	//tool specific
-	std::vector<DisplayObject>			m_displayList;
-	DisplayChunk						m_displayChunk;
-	InputCommands						m_InputCommands;
+    //tool specific
+    std::vector<DisplayObject>			m_displayList;
+    DisplayChunk						m_displayChunk;
+    InputCommands						m_InputCommands;
 
-	//functionality
-	float								m_movespeed = 0.3f;
+    //functionality
+    float								m_movespeed = 0.3f;
 
-	//camera
-	DirectX::SimpleMath::Vector3		m_camPosition{ 0.f, 3.7f, -3.5f };
-	DirectX::SimpleMath::Vector3		m_camOrientation;
-	DirectX::SimpleMath::Vector3		m_camLookAt;
-	DirectX::SimpleMath::Vector3		m_camLookDirection;
-	DirectX::SimpleMath::Vector3		m_camRight;
-	float m_camRotRate = 3.f;
+    //camera
+    DirectX::SimpleMath::Vector3		m_camPosition{ 0.f, 3.7f, -3.5f };
+    DirectX::SimpleMath::Vector3		m_camOrientation;
+    DirectX::SimpleMath::Vector3		m_camLookAt;
+    DirectX::SimpleMath::Vector3		m_camLookDirection;
+    DirectX::SimpleMath::Vector3		m_camRight;
+    float m_camRotRate = 3.f;
 
-	//control variables
-	bool m_grid = false;						//grid rendering on / off
-	// Device resources.
+    //control variables
+    bool m_grid = false;						//grid rendering on / off
+    // Device resources.
     std::shared_ptr<DX::DeviceResources>    m_deviceResources;
 
     // Rendering loop timer.

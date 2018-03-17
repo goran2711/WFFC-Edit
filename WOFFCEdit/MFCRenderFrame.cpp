@@ -9,7 +9,7 @@
 // CChildView
 
 BEGIN_MESSAGE_MAP(CChildRender, CWnd)
-	ON_WM_PAINT()
+    ON_WM_PAINT()
     ON_WM_SIZE()
 END_MESSAGE_MAP()
 
@@ -19,20 +19,20 @@ END_MESSAGE_MAP()
 
 BOOL CChildRender::PreCreateWindow(CREATESTRUCT& cs)
 {
-	if (!CWnd::PreCreateWindow(cs))
-		return FALSE;
+    if (!CWnd::PreCreateWindow(cs))
+        return FALSE;
 
-	cs.dwExStyle |= WS_EX_CLIENTEDGE;
-	cs.style &= ~WS_BORDER;
-	cs.lpszClass = AfxRegisterWndClass(CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS,
-		::LoadCursor(NULL, IDC_ARROW), reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1), NULL);
+    cs.dwExStyle |= WS_EX_CLIENTEDGE;
+    cs.style &= ~WS_BORDER;
+    cs.lpszClass = AfxRegisterWndClass(CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS,
+                                       ::LoadCursor(NULL, IDC_ARROW), reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1), NULL);
 
-	return TRUE;
+    return TRUE;
 }
 
 void CChildRender::OnPaint()
 {
-	CPaintDC dc(this); // device context for painting
+    CPaintDC dc(this); // device context for painting
 }
 
 void CChildRender::OnSize(UINT nType, int width, int height)

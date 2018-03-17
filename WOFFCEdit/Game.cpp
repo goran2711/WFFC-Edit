@@ -19,8 +19,8 @@ using Microsoft::WRL::ComPtr;
 // Initialize the Direct3D resources required to run.
 void Game::Initialize(HWND window, int width, int height)
 {
-	m_deviceResources = std::make_unique<DX::DeviceResources>();
-	m_deviceResources->RegisterDeviceNotify(this);
+    m_deviceResources = std::make_unique<DX::DeviceResources>();
+    m_deviceResources->RegisterDeviceNotify(this);
 
     m_gamePad = std::make_unique<GamePad>();
 
@@ -44,8 +44,8 @@ void Game::Initialize(HWND window, int width, int height)
     eflags = eflags | AudioEngine_Debug;
 #endif
 
-	// Custom deleter to ensure the audio engine is suspended upon deletion of the Game object due to the multi-threaded nature of XAudio2
-	m_audEngine = std::make_unique<AudioEngine>(eflags, [](AudioEngine* audEngine) { audEngine->Suspend(); delete audEngine; });
+    // Custom deleter to ensure the audio engine is suspended upon deletion of the Game object due to the multi-threaded nature of XAudio2
+    m_audEngine = std::make_unique<AudioEngine>(eflags, [](AudioEngine* audEngine) { audEngine->Suspend(); delete audEngine; });
 
     m_audioEvent = 0;
     m_audioTimerAcc = 10.f;
@@ -64,15 +64,15 @@ void Game::Initialize(HWND window, int width, int height)
 
 void Game::SetGridState(bool state)
 {
-	m_grid = state;
+    m_grid = state;
 }
 
 #pragma region Frame Update
 // Executes the basic game loop.
 void Game::Tick(InputCommands *Input)
 {
-	//copy over the input commands so we have a local version to use elsewhere.
-	m_InputCommands = *Input;
+    //copy over the input commands so we have a local version to use elsewhere.
+    m_InputCommands = *Input;
     m_timer.Tick([&]()
     {
         Update(m_timer);
@@ -94,59 +94,59 @@ void Game::Tick(InputCommands *Input)
 // Updates the world.
 void Game::Update(DX::StepTimer const& timer)
 {
-	//TODO  any more complex than this, and the camera should be abstracted out to somewhere else
-	//camera motion is on a plane, so kill the 7 component of the look direction
-	Vector3 planarMotionVector = m_camLookDirection;
-	planarMotionVector.y = 0.0;
+    //TODO  any more complex than this, and the camera should be abstracted out to somewhere else
+    //camera motion is on a plane, so kill the 7 component of the look direction
+    Vector3 planarMotionVector = m_camLookDirection;
+    planarMotionVector.y = 0.0;
 
-	if (m_InputCommands.rotRight)
-	{
-		m_camOrientation.y -= m_camRotRate;
-	}
-	if (m_InputCommands.rotLeft)
-	{
-		m_camOrientation.y += m_camRotRate;
-	}
+    if (m_InputCommands.rotRight)
+    {
+        m_camOrientation.y -= m_camRotRate;
+    }
+    if (m_InputCommands.rotLeft)
+    {
+        m_camOrientation.y += m_camRotRate;
+    }
 
-	//create look direction from Euler angles in m_camOrientation
-	m_camLookDirection.x = sinf(XMConvertToRadians(m_camOrientation.y));
-	m_camLookDirection.z = cosf(XMConvertToRadians(m_camOrientation.y));
-	m_camLookDirection.Normalize();
+    //create look direction from Euler angles in m_camOrientation
+    m_camLookDirection.x = sinf(XMConvertToRadians(m_camOrientation.y));
+    m_camLookDirection.z = cosf(XMConvertToRadians(m_camOrientation.y));
+    m_camLookDirection.Normalize();
 
-	//create right vector from look Direction
-	m_camLookDirection.Cross(Vector3::UnitY, m_camRight);
+    //create right vector from look Direction
+    m_camLookDirection.Cross(Vector3::UnitY, m_camRight);
 
-	//process input and update stuff
-	if (m_InputCommands.forward)
-	{	
-		m_camPosition += m_camLookDirection*m_movespeed;
-	}
-	if (m_InputCommands.back)
-	{
-		m_camPosition -= m_camLookDirection*m_movespeed;
-	}
-	if (m_InputCommands.right)
-	{
-		m_camPosition += m_camRight*m_movespeed;
-	}
-	if (m_InputCommands.left)
-	{
-		m_camPosition -= m_camRight*m_movespeed;
-	}
+    //process input and update stuff
+    if (m_InputCommands.forward)
+    {
+        m_camPosition += m_camLookDirection*m_movespeed;
+    }
+    if (m_InputCommands.back)
+    {
+        m_camPosition -= m_camLookDirection*m_movespeed;
+    }
+    if (m_InputCommands.right)
+    {
+        m_camPosition += m_camRight*m_movespeed;
+    }
+    if (m_InputCommands.left)
+    {
+        m_camPosition -= m_camRight*m_movespeed;
+    }
 
-	//update lookat point
-	m_camLookAt = m_camPosition + m_camLookDirection;
+    //update lookat point
+    m_camLookAt = m_camPosition + m_camLookDirection;
 
-	//apply camera vectors
+    //apply camera vectors
     m_view = Matrix::CreateLookAt(m_camPosition, m_camLookAt, Vector3::UnitY);
 
     m_batchEffect->SetView(m_view);
     m_batchEffect->SetWorld(Matrix::Identity);
-	m_displayChunk.m_terrainEffect->SetView(m_view);
-	m_displayChunk.m_terrainEffect->SetWorld(Matrix::Identity);
+    m_displayChunk.m_terrainEffect->SetView(m_view);
+    m_displayChunk.m_terrainEffect->SetWorld(Matrix::Identity);
 
 #ifdef DXTK_AUDIO
-    m_audioTimerAcc -= (float)timer.GetElapsedSeconds();
+    m_audioTimerAcc -= (float) timer.GetElapsedSeconds();
     if (m_audioTimerAcc < 0)
     {
         if (m_retryDefault)
@@ -170,7 +170,7 @@ void Game::Update(DX::StepTimer const& timer)
     }
 #endif
 
-   
+
 }
 #pragma endregion
 
@@ -189,46 +189,46 @@ void Game::Render()
     m_deviceResources->PIXBeginEvent(L"Render");
     auto context = m_deviceResources->GetD3DDeviceContext();
 
-	if (m_grid)
-	{
-		// Draw procedurally generated dynamic grid
-		const XMVECTORF32 xaxis = { 512.f, 0.f, 0.f };
-		const XMVECTORF32 yaxis = { 0.f, 0.f, 512.f };
-		DrawGrid(xaxis, yaxis, g_XMZero, 512, 512, Colors::Gray);
-	}
+    if (m_grid)
+    {
+        // Draw procedurally generated dynamic grid
+        const XMVECTORF32 xaxis = { 512.f, 0.f, 0.f };
+        const XMVECTORF32 yaxis = { 0.f, 0.f, 512.f };
+        DrawGrid(xaxis, yaxis, g_XMZero, 512, 512, Colors::Gray);
+    }
 
-	//RENDER OBJECTS FROM SCENEGRAPH
-	int numRenderObjects = m_displayList.size();
-	for (int i = 0; i < numRenderObjects; i++)
-	{
-		m_deviceResources->PIXBeginEvent(L"Draw model");
-		const XMVECTORF32 scale = { m_displayList[i].m_scale.x, m_displayList[i].m_scale.y, m_displayList[i].m_scale.z };
-		const XMVECTORF32 translate = { m_displayList[i].m_position.x, m_displayList[i].m_position.y, m_displayList[i].m_position.z };
+    //RENDER OBJECTS FROM SCENEGRAPH
+    int numRenderObjects = m_displayList.size();
+    for (int i = 0; i < numRenderObjects; i++)
+    {
+        m_deviceResources->PIXBeginEvent(L"Draw model");
+        const XMVECTORF32 scale = { m_displayList[i].m_scale.x, m_displayList[i].m_scale.y, m_displayList[i].m_scale.z };
+        const XMVECTORF32 translate = { m_displayList[i].m_position.x, m_displayList[i].m_position.y, m_displayList[i].m_position.z };
 
-		//convert degrees into radians for rotation matrix
-		XMVECTOR rotate = Quaternion::CreateFromYawPitchRoll(XMConvertToRadians(m_displayList[i].m_orientation.y),
-															XMConvertToRadians(m_displayList[i].m_orientation.x),
-															XMConvertToRadians(m_displayList[i].m_orientation.z));
+        //convert degrees into radians for rotation matrix
+        XMVECTOR rotate = Quaternion::CreateFromYawPitchRoll(XMConvertToRadians(m_displayList[i].m_orientation.y),
+                                                             XMConvertToRadians(m_displayList[i].m_orientation.x),
+                                                             XMConvertToRadians(m_displayList[i].m_orientation.z));
 
-		XMMATRIX local = m_world * XMMatrixTransformation(g_XMZero, Quaternion::Identity, scale, g_XMZero, rotate, translate);
+        XMMATRIX local = m_world * XMMatrixTransformation(g_XMZero, Quaternion::Identity, scale, g_XMZero, rotate, translate);
 
-		m_displayList[i].m_model->Draw(context, *m_states, local, m_view, m_projection, false);	//last variable in draw,  make TRUE for wireframe
+        m_displayList[i].m_model->Draw(context, *m_states, local, m_view, m_projection, false);	//last variable in draw,  make TRUE for wireframe
 
-		m_deviceResources->PIXEndEvent();
-	}
+        m_deviceResources->PIXEndEvent();
+    }
     m_deviceResources->PIXEndEvent();
 
-	//RENDER TERRAIN
-	context->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
-	context->OMSetDepthStencilState(m_states->DepthDefault(),0);
-	context->RSSetState(m_states->CullNone());
-//	context->RSSetState(m_states->Wireframe());		//uncomment for wireframe
+    //RENDER TERRAIN
+    context->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
+    context->OMSetDepthStencilState(m_states->DepthDefault(), 0);
+    context->RSSetState(m_states->CullNone());
+    //	context->RSSetState(m_states->Wireframe());		//uncomment for wireframe
 
     ID3D11SamplerState* sampler[] = { m_states->AnisotropicWrap() };
     context->PSSetSamplers(0, 1, sampler);
 
-	//Render the batch,  This is handled in the Display chunk becuase it has the potential to get complex
-	m_displayChunk.RenderBatch(m_deviceResources);
+    //Render the batch,  This is handled in the Display chunk becuase it has the potential to get complex
+    m_displayChunk.RenderBatch(m_deviceResources);
 
     //CAMERA POSITION ON HUD
     m_sprites->Begin();
@@ -344,91 +344,91 @@ void Game::OnWindowSizeChanged(int width, int height)
 
 void Game::BuildDisplayList(std::vector<SceneObject> * SceneGraph)
 {
-	auto device = m_deviceResources->GetD3DDevice();
-	auto devicecontext = m_deviceResources->GetD3DDeviceContext();
+    auto device = m_deviceResources->GetD3DDevice();
+    auto devicecontext = m_deviceResources->GetD3DDeviceContext();
 
-	if (!m_displayList.empty())		//is the vector empty
-	{
-		m_displayList.clear();		//if not, empty it
-	}
+    if (!m_displayList.empty())		//is the vector empty
+    {
+        m_displayList.clear();		//if not, empty it
+    }
 
-	//for every item in the scenegraph
-	int numObjects = SceneGraph->size();
-	for (int i = 0; i < numObjects; i++)
-	{
-		
-		//create a temp display object that we will populate then append to the display list.
-		DisplayObject newDisplayObject;
-		
-		//load model
+    //for every item in the scenegraph
+    int numObjects = SceneGraph->size();
+    for (int i = 0; i < numObjects; i++)
+    {
+
+        //create a temp display object that we will populate then append to the display list.
+        DisplayObject newDisplayObject;
+
+        //load model
         std::wstring_convert<std::codecvt_utf8<wchar_t>> convertToWide;
-		std::wstring modelwstr = convertToWide.from_bytes(SceneGraph->at(i).model_path);							//convect string to Wchar
-		newDisplayObject.m_model = Model::CreateFromCMO(device, modelwstr.c_str(), *m_fxFactory, true);	//get DXSDK to load model "False" for LH coordinate system (maya)
+        std::wstring modelwstr = convertToWide.from_bytes(SceneGraph->at(i).model_path);							//convect string to Wchar
+        newDisplayObject.m_model = Model::CreateFromCMO(device, modelwstr.c_str(), *m_fxFactory, true);	//get DXSDK to load model "False" for LH coordinate system (maya)
 
-		//Load Texture
-		std::wstring texturewstr = convertToWide.from_bytes(SceneGraph->at(i).tex_diffuse_path);								//convect string to Wchar
-		HRESULT rs;
-		ID3D11ShaderResourceView* texture_diffuse = nullptr;
-		rs = CreateDDSTextureFromFile(device, texturewstr.c_str(), nullptr, &texture_diffuse);	//load tex into Shader resource
+        //Load Texture
+        std::wstring texturewstr = convertToWide.from_bytes(SceneGraph->at(i).tex_diffuse_path);								//convect string to Wchar
+        HRESULT rs;
+        ID3D11ShaderResourceView* texture_diffuse = nullptr;
+        rs = CreateDDSTextureFromFile(device, texturewstr.c_str(), nullptr, &texture_diffuse);	//load tex into Shader resource
 
-		//if texture fails.  load error default
-		if (rs)
-		{
-			CreateDDSTextureFromFile(device, L"database/data/Error.dds", nullptr, &texture_diffuse);	//load tex into Shader resource
-		}
+        //if texture fails.  load error default
+        if (rs)
+        {
+            CreateDDSTextureFromFile(device, L"database/data/Error.dds", nullptr, &texture_diffuse);	//load tex into Shader resource
+        }
 
-		// Texture is handled by RAII
-		newDisplayObject.m_texture_diffuse = texture_diffuse;
+        // Texture is handled by RAII
+        newDisplayObject.m_texture_diffuse = texture_diffuse;
 
-		//apply new texture to models effect
-		newDisplayObject.m_model->UpdateEffects([&](IEffect* effect) //This uses a Lambda function,  if you dont understand it: Look it up.
-		{	
-			auto lights = dynamic_cast<BasicEffect*>(effect);
-			if (lights)
-			{
-				lights->SetTexture(newDisplayObject.m_texture_diffuse.Get());			
-			}
-		});
+        //apply new texture to models effect
+        newDisplayObject.m_model->UpdateEffects([&](IEffect* effect) //This uses a Lambda function,  if you dont understand it: Look it up.
+        {
+            auto lights = dynamic_cast<BasicEffect*>(effect);
+            if (lights)
+            {
+                lights->SetTexture(newDisplayObject.m_texture_diffuse.Get());
+            }
+        });
 
-		//set position
-		newDisplayObject.m_position.x = SceneGraph->at(i).posX;
-		newDisplayObject.m_position.y = SceneGraph->at(i).posY;
-		newDisplayObject.m_position.z = SceneGraph->at(i).posZ;
-		
-		//setorientation
-		newDisplayObject.m_orientation.x = SceneGraph->at(i).rotX;
-		newDisplayObject.m_orientation.y = SceneGraph->at(i).rotY;
-		newDisplayObject.m_orientation.z = SceneGraph->at(i).rotZ;
+        //set position
+        newDisplayObject.m_position.x = SceneGraph->at(i).posX;
+        newDisplayObject.m_position.y = SceneGraph->at(i).posY;
+        newDisplayObject.m_position.z = SceneGraph->at(i).posZ;
 
-		//set scale
-		newDisplayObject.m_scale.x = SceneGraph->at(i).scaX;
-		newDisplayObject.m_scale.y = SceneGraph->at(i).scaY;
-		newDisplayObject.m_scale.z = SceneGraph->at(i).scaZ;
+        //setorientation
+        newDisplayObject.m_orientation.x = SceneGraph->at(i).rotX;
+        newDisplayObject.m_orientation.y = SceneGraph->at(i).rotY;
+        newDisplayObject.m_orientation.z = SceneGraph->at(i).rotZ;
 
-		//set wireframe / render flags
-		newDisplayObject.m_render = SceneGraph->at(i).editor_render;
-		newDisplayObject.m_wireframe = SceneGraph->at(i).editor_wireframe;
-		
-		m_displayList.push_back(newDisplayObject);		
-	}
-		
-		
-		
+        //set scale
+        newDisplayObject.m_scale.x = SceneGraph->at(i).scaX;
+        newDisplayObject.m_scale.y = SceneGraph->at(i).scaY;
+        newDisplayObject.m_scale.z = SceneGraph->at(i).scaZ;
+
+        //set wireframe / render flags
+        newDisplayObject.m_render = SceneGraph->at(i).editor_render;
+        newDisplayObject.m_wireframe = SceneGraph->at(i).editor_wireframe;
+
+        m_displayList.push_back(newDisplayObject);
+    }
+
+
+
 }
 
 void Game::BuildDisplayChunk(ChunkObject * SceneChunk)
 {
-	//populate our local DISPLAYCHUNK with all the chunk info we need from the object stored in toolmain
-	//which, to be honest, is almost all of it. Its mostly rendering related info so...
-	m_displayChunk.PopulateChunkData(SceneChunk);		//migrate chunk data
-	m_displayChunk.LoadHeightMap(m_deviceResources);
-	m_displayChunk.m_terrainEffect->SetProjection(m_projection);
-	m_displayChunk.InitialiseBatch();
+    //populate our local DISPLAYCHUNK with all the chunk info we need from the object stored in toolmain
+    //which, to be honest, is almost all of it. Its mostly rendering related info so...
+    m_displayChunk.PopulateChunkData(SceneChunk);		//migrate chunk data
+    m_displayChunk.LoadHeightMap(m_deviceResources);
+    m_displayChunk.m_terrainEffect->SetProjection(m_projection);
+    m_displayChunk.InitialiseBatch();
 }
 
 void Game::SaveDisplayChunk(ChunkObject * SceneChunk)
 {
-	m_displayChunk.SaveHeightMap();			//save heightmap to file.
+    m_displayChunk.SaveHeightMap();			//save heightmap to file.
 }
 
 #ifdef DXTK_AUDIO
@@ -455,8 +455,8 @@ void Game::CreateDeviceDependentResources()
     m_states = std::make_unique<CommonStates>(device);
 
     m_fxFactory = std::make_unique<EffectFactory>(device);
-	m_fxFactory->SetDirectory(L"database/data/"); //fx Factory will look in the database directory
-	m_fxFactory->SetSharing(false);	//we must set this to false otherwise it will share effects based on the initial tex loaded (When the model loads) rather than what we will change them to.
+    m_fxFactory->SetDirectory(L"database/data/"); //fx Factory will look in the database directory
+    m_fxFactory->SetSharing(false);	//we must set this to false otherwise it will share effects based on the initial tex loaded (When the model loads) rather than what we will change them to.
 
     m_sprites = std::make_unique<SpriteBatch>(context);
 
@@ -473,19 +473,19 @@ void Game::CreateDeviceDependentResources()
 
         DX::ThrowIfFailed(
             device->CreateInputLayout(VertexPositionColor::InputElements,
-                VertexPositionColor::InputElementCount,
-                shaderByteCode, byteCodeLength,
-                m_batchInputLayout.ReleaseAndGetAddressOf())
+                                      VertexPositionColor::InputElementCount,
+                                      shaderByteCode, byteCodeLength,
+                                      m_batchInputLayout.ReleaseAndGetAddressOf())
         );
     }
 
     m_font = std::make_unique<SpriteFont>(device, L"SegoeUI_18.spritefont");
 
-//    m_shape = GeometricPrimitive::CreateTeapot(context, 4.f, 8);
+    //    m_shape = GeometricPrimitive::CreateTeapot(context, 4.f, 8);
 
-    // SDKMESH has to use clockwise winding with right-handed coordinates, so textures are flipped in U
+        // SDKMESH has to use clockwise winding with right-handed coordinates, so textures are flipped in U
     m_model = Model::CreateFromSDKMESH(device, L"tiny.sdkmesh", *m_fxFactory);
-	
+
 
     // Load textures
     DX::ThrowIfFailed(
@@ -522,9 +522,9 @@ void Game::CreateWindowSizeDependentResources()
 
     m_batchEffect->SetProjection(m_projection);
 
-	if (m_displayChunk.m_terrainEffect)
-		m_displayChunk.m_terrainEffect->SetProjection(m_projection);
-	
+    if (m_displayChunk.m_terrainEffect)
+        m_displayChunk.m_terrainEffect->SetProjection(m_projection);
+
 }
 
 void Game::OnDeviceLost()

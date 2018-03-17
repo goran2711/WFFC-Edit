@@ -8,29 +8,29 @@ class ToolMain;
 
 class CChildRender : public CWnd
 {
-	// Construction
+    // Construction
 public:
 
-	// Attributes
+    // Attributes
 public:
     ToolMain* toolSystem = nullptr;
 
-	// Operations
+    // Operations
 public:
 
-	// Overrides
+    // Overrides
 protected:
-	virtual BOOL PreCreateWindow(CREATESTRUCT& cs) override;
+    virtual BOOL PreCreateWindow(CREATESTRUCT& cs) override;
 
-	// Implementation
+    // Implementation
 public:
-	virtual ~CChildRender() = default;
+    virtual ~CChildRender() = default;
 
-	// Generated message map functions
+    // Generated message map functions
 protected:
-	afx_msg void OnPaint();
+    afx_msg void OnPaint();
     afx_msg void OnSize(UINT nType, int width, int height);
 
-	DECLARE_MESSAGE_MAP()
+    DECLARE_MESSAGE_MAP()
 };
 
