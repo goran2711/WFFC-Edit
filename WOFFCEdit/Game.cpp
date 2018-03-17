@@ -6,6 +6,8 @@
 #include "Game.h"
 #include "DisplayObject.h"
 #include <string>
+#include <locale>
+#include <codecvt>
 
 
 using namespace DirectX;
@@ -359,11 +361,12 @@ void Game::BuildDisplayList(std::vector<SceneObject> * SceneGraph)
 		DisplayObject newDisplayObject;
 		
 		//load model
-		std::wstring modelwstr = StringToWCHART(SceneGraph->at(i).model_path);							//convect string to Wchar
+        std::wstring_convert<std::codecvt_utf8<wchar_t>> convertToWide;
+		std::wstring modelwstr = convertToWide.from_bytes(SceneGraph->at(i).model_path);							//convect string to Wchar
 		newDisplayObject.m_model = Model::CreateFromCMO(device, modelwstr.c_str(), *m_fxFactory, true);	//get DXSDK to load model "False" for LH coordinate system (maya)
 
 		//Load Texture
-		std::wstring texturewstr = StringToWCHART(SceneGraph->at(i).tex_diffuse_path);								//convect string to Wchar
+		std::wstring texturewstr = convertToWide.from_bytes(SceneGraph->at(i).tex_diffuse_path);								//convect string to Wchar
 		HRESULT rs;
 		ID3D11ShaderResourceView* texture_diffuse = nullptr;
 		rs = CreateDDSTextureFromFile(device, texturewstr.c_str(), nullptr, &texture_diffuse);	//load tex into Shader resource
@@ -546,16 +549,3 @@ void Game::OnDeviceRestored()
     CreateWindowSizeDependentResources();
 }
 #pragma endregion
-
-std::wstring StringToWCHART(std::string s)
-{
-
-	int len;
-	int slength = (int)s.length() + 1;
-	len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
-	wchar_t* buf = new wchar_t[len];
-	MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
-	std::wstring r(buf);
-	delete[] buf;
-	return r;
-}

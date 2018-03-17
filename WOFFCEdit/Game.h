@@ -129,5 +129,3 @@ private:
 
 
 };
-
-std::wstring StringToWCHART(std::string s);

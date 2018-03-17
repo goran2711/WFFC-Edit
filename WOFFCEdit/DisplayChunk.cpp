@@ -1,6 +1,8 @@
-#include <string>
 #include "DisplayChunk.h"
 #include "Game.h"
+#include <string>
+#include <locale>
+#include <codecvt>
 
 
 using namespace DirectX;
@@ -95,7 +97,8 @@ void DisplayChunk::LoadHeightMap(std::shared_ptr<DX::DeviceResources>  DevResour
 	//load in texture diffuse
 	
 	//load the diffuse texture
-	std::wstring texturewstr = StringToWCHART(m_tex_diffuse_path);
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> convertToWide;
+	std::wstring texturewstr = convertToWide.from_bytes(m_tex_diffuse_path);
 	HRESULT rs;	
 	rs = CreateDDSTextureFromFile(device, texturewstr.c_str(), NULL, &m_texture_diffuse);	//load tex into Shader resource	view and resource
 	
