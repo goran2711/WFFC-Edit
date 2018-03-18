@@ -110,9 +110,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="Win32SimpleSample.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
@@ -124,5 +121,8 @@
   </ItemGroup>
   <ItemGroup>
     <Media Include="database\data\Scene1.fbx" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
