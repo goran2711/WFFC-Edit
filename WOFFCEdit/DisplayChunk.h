@@ -3,16 +3,19 @@
 #include "DeviceResources.h"
 #include "ChunkObject.h"
 
-//geometric resoltuion - note,  hard coded.
-#define TERRAINRESOLUTION 128
-
 class DisplayChunk
 {
 public:
+    static constexpr size_t TERRAINRESOLUTION = 128;
+    static constexpr size_t NUM_VERTICES = TERRAINRESOLUTION * TERRAINRESOLUTION;
+    static constexpr size_t NUM_QUADS = (TERRAINRESOLUTION * TERRAINRESOLUTION) - (TERRAINRESOLUTION * 2 - 1);
+    static constexpr float TEXCOORD_STEP = 1.f / (TERRAINRESOLUTION - 1);
+
     void PopulateChunkData(ChunkObject * SceneChunk);
-    void RenderBatch(std::shared_ptr<DX::DeviceResources>  DevResources);
+    void RenderBatch(ID3D11DeviceContext* context);
     void InitialiseBatch();	//initial setup, base coordinates etc based on scale
-    void LoadHeightMap(std::shared_ptr<DX::DeviceResources>  DevResources);
+    void InitialiseRendering(DX::DeviceResources* deviceResources);
+    void LoadHeightMap(ID3D11Device* device);
     void SaveHeightMap();			//saves the heigtmap back to file.
     void UpdateTerrain();			//updates the geometry based on the heigtmap
     void GenerateHeightmap();		//creates or alters the heightmap
@@ -24,13 +27,13 @@ public:
 
 private:
 
-    DirectX::VertexPositionNormalTexture m_terrainGeometry[TERRAINRESOLUTION][TERRAINRESOLUTION];
-    BYTE m_heightMap[TERRAINRESOLUTION*TERRAINRESOLUTION];
+    std::vector<uint16_t> m_indices;
+    DirectX::VertexPositionNormalTexture m_terrainGeometry[NUM_VERTICES];
+    BYTE m_heightMap[NUM_VERTICES];
     void CalculateTerrainNormals();
 
     float	m_terrainHeightScale = 0.25f;	//convert our 0-256 terrain to 64
     int		m_terrainSize = 512;				//size of terrain in metres
-    float	m_textureCoordStep = 1.f / (TERRAINRESOLUTION - 1);			//step in texture coordinates between each vertex row / column (-1 because its split into chunks. not vertices.  we want the last one in each row to have tex coord 1)
     float   m_terrainPositionScalingFactor = m_terrainSize / (float) (TERRAINRESOLUTION - 1);	//factor we multiply the position by to convert it from its native resolution( 0- Terrain Resolution) to full scale size in metres dictated by m_Terrainsize
 
     std::string m_name;
@@ -51,6 +54,5 @@ private:
     int m_tex_splat_2_tiling;
     int m_tex_splat_3_tiling;
     int m_tex_splat_4_tiling;
-
 };
 

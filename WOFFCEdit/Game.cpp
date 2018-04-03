@@ -228,7 +228,7 @@ void Game::Render()
     context->PSSetSamplers(0, 1, sampler);
 
     //Render the batch,  This is handled in the Display chunk becuase it has the potential to get complex
-    m_displayChunk.RenderBatch(m_deviceResources);
+    m_displayChunk.RenderBatch(context);
 
     //CAMERA POSITION ON HUD
     m_sprites->Begin();
@@ -421,9 +421,11 @@ void Game::BuildDisplayChunk(ChunkObject * SceneChunk)
     //populate our local DISPLAYCHUNK with all the chunk info we need from the object stored in toolmain
     //which, to be honest, is almost all of it. Its mostly rendering related info so...
     m_displayChunk.PopulateChunkData(SceneChunk);		//migrate chunk data
-    m_displayChunk.LoadHeightMap(m_deviceResources);
-    m_displayChunk.m_terrainEffect->SetProjection(m_projection);
+    m_displayChunk.LoadHeightMap(m_deviceResources->GetD3DDevice());
     m_displayChunk.InitialiseBatch();
+    // Initialise rendering after batch, because we need to know how large the index buffer needs to be
+    m_displayChunk.InitialiseRendering(m_deviceResources.get());
+    m_displayChunk.m_terrainEffect->SetProjection(m_projection);
 }
 
 void Game::SaveDisplayChunk(ChunkObject * SceneChunk)
