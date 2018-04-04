@@ -2,6 +2,7 @@
 #include "resource.h"
 #include <vector>
 #include <sstream>
+#include <cassert>
 
 
 ToolMain::~ToolMain()
@@ -25,18 +26,9 @@ void ToolMain::onActionInitialise(HWND handle, int width, int height)
     m_d3dRenderer.Initialize(handle, m_width, m_height);
 
     //database connection establish
-    int rc;
-    rc = sqlite3_open("database/test.db", &m_databaseConnection);
+    int rc = sqlite3_open_v2("database/test.db", &m_databaseConnection, SQLITE_OPEN_READWRITE, nullptr);
 
-    if (rc)
-    {
-        TRACE("Can't open database");
-        //if the database cant open. Perhaps a more catastrophic error would be better here
-    }
-    else
-    {
-        TRACE("Opened database successfully");
-    }
+    assert(("could not open database", rc == SQLITE_OK));
 
     onActionLoad();
 }
