@@ -5,6 +5,7 @@
 #pragma once
 
 #include <exception>
+#include <windows.h>
 #include <stdint.h>
 
 namespace DX

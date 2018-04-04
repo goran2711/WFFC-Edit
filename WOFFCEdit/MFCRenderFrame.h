@@ -1,6 +1,5 @@
 #pragma once
 #include <afxwin.h> 
-#include <afxext.h>
 
 class ToolMain;
 

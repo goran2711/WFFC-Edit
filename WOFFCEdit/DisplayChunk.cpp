@@ -1,5 +1,7 @@
 #include "DisplayChunk.h"
-#include "Game.h"
+#include "ChunkObject.h"
+#include "DeviceResources.h"
+#include "pch.h"
 #include <string>
 #include <locale>
 #include <codecvt>

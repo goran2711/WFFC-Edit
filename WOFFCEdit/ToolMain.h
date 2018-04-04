@@ -1,13 +1,10 @@
 #pragma once
 
-#include <afxext.h>
-#include "pch.h"
 #include "Game.h"
-#include "sqlite3.h"
 #include "SceneObject.h"
-#include "InputCommands.h"
-#include <vector>
+#include "ChunkObject.h"
 
+struct sqlite3;
 
 class ToolMain
 {
@@ -24,8 +21,8 @@ public: //methods
     void	onActionInitialise(HWND handle, int width, int height);			//Passes through handle and hieght and width and initialises DirectX renderer and SQL LITE
     void	onActionFocusCamera();
     void	onActionLoad();													//load the current chunk
-    afx_msg	void	onActionSave();											//save the current chunk
-    afx_msg void	onActionSaveTerrain();									//save chunk geometry
+    void	onActionSave();											//save the current chunk
+    void	onActionSaveTerrain();									//save chunk geometry
 
     void OnWindowSizeChanged(int width, int height);
 
@@ -46,7 +43,6 @@ private:	//variables
     HWND	m_toolHandle;		//Handle to the  window
     Game	m_d3dRenderer;		//Instance of D3D rendering system for our tool
     InputCommands m_toolInputCommands;		//input commands that we want to use and possibly pass over to the renderer
-    CRect	WindowRECT;		//Window area rectangle. 
     char	m_keyArray[256];
     sqlite3 *m_databaseConnection = nullptr;	//sqldatabase handle
 

@@ -4,15 +4,15 @@
 
 #pragma once
 
-#include "DeviceResources.h"
+#include "pch.h"
 #include "StepTimer.h"
-#include "SceneObject.h"
 #include "DisplayObject.h"
 #include "DisplayChunk.h"
-#include "ChunkObject.h"
 #include "InputCommands.h"
-#include <vector>
+#include "DeviceResources.h"
 
+struct ChunkObject;
+struct SceneObject;
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.

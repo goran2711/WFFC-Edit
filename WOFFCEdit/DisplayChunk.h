@@ -1,7 +1,17 @@
 #pragma once
-#include "pch.h"
-#include "DeviceResources.h"
-#include "ChunkObject.h"
+#include <memory>
+#include <vector>
+#include <wrl/client.h>
+#include "PrimitiveBatch.h"
+#include "Effects.h"
+#include "VertexTypes.h"
+
+namespace DX
+{
+    class DeviceResources;
+}
+
+struct ChunkObject;
 
 class DisplayChunk
 {

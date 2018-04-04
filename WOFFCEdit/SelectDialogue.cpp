@@ -1,8 +1,9 @@
 // SelectDialogue.cpp : implementation file
 //
 
-#include "stdafx.h"
 #include "SelectDialogue.h"
+#include "resource.h"
+#include "SceneObject.h"
 
 // SelectDialogue dialog
 

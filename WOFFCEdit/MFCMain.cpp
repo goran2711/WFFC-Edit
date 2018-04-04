@@ -1,6 +1,6 @@
 #include "MFCMain.h"
 #include "resource.h"
-
+#include "MFCFrame.h"
 
 BEGIN_MESSAGE_MAP(MFCMain, CWinApp)
     ON_COMMAND(ID_FILE_QUIT, &MFCMain::MenuFileQuit)

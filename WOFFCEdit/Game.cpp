@@ -2,9 +2,8 @@
 // Game.cpp
 //
 
-#include "pch.h"
 #include "Game.h"
-#include "DisplayObject.h"
+#include "SceneObject.h"
 #include <string>
 #include <locale>
 #include <codecvt>

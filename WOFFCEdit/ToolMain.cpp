@@ -1,6 +1,6 @@
 #include "ToolMain.h"
 #include "resource.h"
-#include <vector>
+#include "sqlite3.h"
 #include <sstream>
 #include <cassert>
 
