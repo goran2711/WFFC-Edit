@@ -5,6 +5,7 @@
 #include "pch.h"
 #include "Game.h"
 #include "DisplayObject.h"
+#include "UserInput.h"
 #include <string>
 #include <locale>
 #include <codecvt>
@@ -21,13 +22,6 @@ void Game::Initialize(HWND window, int width, int height)
 {
     m_deviceResources = std::make_unique<DX::DeviceResources>();
     m_deviceResources->RegisterDeviceNotify(this);
-
-    m_gamePad = std::make_unique<GamePad>();
-
-    m_keyboard = std::make_unique<Keyboard>();
-
-    m_mouse = std::make_unique<Mouse>();
-    m_mouse->SetWindow(window);
 
     m_deviceResources->SetWindow(window, width, height);
 
@@ -69,13 +63,12 @@ void Game::SetGridState(bool state)
 
 #pragma region Frame Update
 // Executes the basic game loop.
-void Game::Tick(InputCommands *Input)
+void Game::Tick(const UserInput& input)
 {
     //copy over the input commands so we have a local version to use elsewhere.
-    m_InputCommands = *Input;
     m_timer.Tick([&]()
     {
-        Update(m_timer);
+        Update(m_timer, input);
     });
 
 #ifdef DXTK_AUDIO
@@ -94,55 +87,6 @@ void Game::Tick(InputCommands *Input)
 // Updates the world.
 void Game::Update(DX::StepTimer const& timer)
 {
-    //TODO  any more complex than this, and the camera should be abstracted out to somewhere else
-    //camera motion is on a plane, so kill the 7 component of the look direction
-    Vector3 planarMotionVector = m_camLookDirection;
-    planarMotionVector.y = 0.0;
-
-    if (m_InputCommands.rotRight)
-    {
-        m_camOrientation.y -= m_camRotRate;
-    }
-    if (m_InputCommands.rotLeft)
-    {
-        m_camOrientation.y += m_camRotRate;
-    }
-
-    //create look direction from Euler angles in m_camOrientation
-    m_camLookDirection.x = sinf(XMConvertToRadians(m_camOrientation.y));
-    m_camLookDirection.z = cosf(XMConvertToRadians(m_camOrientation.y));
-    m_camLookDirection.Normalize();
-
-    //create right vector from look Direction
-    m_camLookDirection.Cross(Vector3::UnitY, m_camRight);
-
-    //process input and update stuff
-    if (m_InputCommands.forward)
-    {
-        m_camPosition += m_camLookDirection*m_movespeed;
-    }
-    if (m_InputCommands.back)
-    {
-        m_camPosition -= m_camLookDirection*m_movespeed;
-    }
-    if (m_InputCommands.right)
-    {
-        m_camPosition += m_camRight*m_movespeed;
-    }
-    if (m_InputCommands.left)
-    {
-        m_camPosition -= m_camRight*m_movespeed;
-    }
-
-    //update lookat point
-    m_camLookAt = m_camPosition + m_camLookDirection;
-
-    //apply camera vectors
-    m_view = Matrix::CreateLookAt(m_camPosition, m_camLookAt, Vector3::UnitY);
-
-    m_batchEffect->SetView(m_view);
-    m_batchEffect->SetWorld(Matrix::Identity);
-    m_displayChunk.m_terrainEffect->SetView(m_view);
     m_displayChunk.m_terrainEffect->SetWorld(Matrix::Identity);
 
 #ifdef DXTK_AUDIO
@@ -169,9 +113,60 @@ void Game::Update(DX::StepTimer const& timer)
         }
     }
 #endif
-
-
 }
+
+void Game::Update(DX::StepTimer const & timer, const UserInput & input)
+{
+    //TODO  any more complex than this, and the camera should be abstracted out to somewhere else
+    //camera motion is on a plane, so kill the 7 component of the look direction
+    if (input.keyboard.E)
+    {
+        m_camOrientation.y -= m_camRotRate;
+    }
+    if (input.keyboard.Q)
+    {
+        m_camOrientation.y += m_camRotRate;
+    }
+
+    //create look direction from Euler angles in m_camOrientation
+    m_camLookDirection.x = sinf(XMConvertToRadians(m_camOrientation.y));
+    m_camLookDirection.z = cosf(XMConvertToRadians(m_camOrientation.y));
+    m_camLookDirection.Normalize();
+
+    //create right vector from look Direction
+    m_camLookDirection.Cross(Vector3::UnitY, m_camRight);
+
+    //process input and update stuff
+    if (input.keyboard.W)
+    {
+        m_camPosition += m_camLookDirection*m_movespeed;
+    }
+    if (input.keyboard.S)
+    {
+        m_camPosition -= m_camLookDirection*m_movespeed;
+    }
+    if (input.keyboard.D)
+    {
+        m_camPosition += m_camRight*m_movespeed;
+    }
+    if (input.keyboard.A)
+    {
+        m_camPosition -= m_camRight*m_movespeed;
+    }
+
+    //update lookat point
+    m_camLookAt = m_camPosition + m_camLookDirection;
+
+    //apply camera vectors
+    m_view = Matrix::CreateLookAt(m_camPosition, m_camLookAt, Vector3::UnitY);
+
+    m_batchEffect->SetView(m_view);
+    m_batchEffect->SetWorld(Matrix::Identity);
+    m_displayChunk.m_terrainEffect->SetView(m_view);
+
+    Update(timer);
+}
+
 #pragma endregion
 
 #pragma region Frame Render
@@ -356,7 +351,6 @@ void Game::BuildDisplayList(std::vector<SceneObject> * SceneGraph)
     int numObjects = SceneGraph->size();
     for (int i = 0; i < numObjects; i++)
     {
-
         //create a temp display object that we will populate then append to the display list.
         DisplayObject newDisplayObject;
 

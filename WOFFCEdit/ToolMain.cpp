@@ -3,6 +3,10 @@
 #include <vector>
 #include <sstream>
 
+using DirectX::GamePad;
+using DirectX::Keyboard;
+using DirectX::Mouse;
+using StateTracker = Mouse::ButtonStateTracker;
 
 ToolMain::~ToolMain()
 {
@@ -23,6 +27,16 @@ void ToolMain::onActionInitialise(HWND handle, int width, int height)
     m_height = height;
 
     m_d3dRenderer.Initialize(handle, m_width, m_height);
+
+    // Initialise user input devices
+    m_gamePad = std::make_unique<GamePad>();
+
+    m_keyboard = std::make_unique<Keyboard>();
+
+    m_mouse = std::make_unique<Mouse>();
+    m_mouse->SetWindow(m_toolHandle);
+
+    m_mouseStateTracker = std::make_unique<StateTracker>();
 
     //database connection establish
     int rc;
@@ -248,67 +262,64 @@ void ToolMain::Tick(MSG *msg)
         //add to scenegraph
         //resend scenegraph to Direct X renderer
 
+    UserInput input = HandleInput();
+
     //Renderer Update Call
-    m_d3dRenderer.Tick(&m_toolInputCommands);
+    m_d3dRenderer.Tick(input);
 }
 
 void ToolMain::UpdateInput(MSG * msg)
 {
+    UINT message = msg->message;
+    WPARAM wParam = msg->wParam;
+    LPARAM lParam = msg->lParam;
 
-    switch (msg->message)
+    switch (message)
     {
         //Global inputs,  mouse position and keys etc
-        case WM_KEYDOWN:
-            m_keyArray[msg->wParam] = true;
+        //case WM_KEYDOWN:
+        //    m_keyArray[msg->wParam] = true;
+        //    break;
+
+        //case WM_KEYUP:
+        //    m_keyArray[msg->wParam] = false;
+        //    break;
+
+        case WM_ACTIVATEAPP:
+            Keyboard::ProcessMessage(message, wParam, lParam);
+            Mouse::ProcessMessage(message, wParam, lParam);
             break;
 
-        case WM_KEYUP:
-            m_keyArray[msg->wParam] = false;
-            break;
-
+        case WM_INPUT:
         case WM_MOUSEMOVE:
+        case WM_LBUTTONDOWN:
+        case WM_LBUTTONUP:
+        case WM_RBUTTONDOWN:
+        case WM_RBUTTONUP:
+        case WM_MBUTTONDOWN:
+        case WM_MBUTTONUP:
+        case WM_MOUSEWHEEL:
+        case WM_XBUTTONDOWN:
+        case WM_XBUTTONUP:
+        case WM_MOUSEHOVER:
+            Mouse::ProcessMessage(message, wParam, lParam);
             break;
 
-        case WM_LBUTTONDOWN:	//mouse button down,  you will probably need to check when its up too
-            //set some flag for the mouse button in inputcommands
+        case WM_KEYDOWN:
+        case WM_SYSKEYDOWN:
+        case WM_KEYUP:
+        case WM_SYSKEYUP:
+            Keyboard::ProcessMessage(message, wParam, lParam);
             break;
+    }
+}
 
-    }
-    //here we update all the actual app functionality that we want.  This information will either be used int toolmain, or sent down to the renderer (Camera movement etc
-    //WASD movement
-    if (m_keyArray['W'])
-    {
-        m_toolInputCommands.forward = true;
-    }
-    else m_toolInputCommands.forward = false;
+UserInput ToolMain::HandleInput()
+{
+    auto mouseState = m_mouse->GetState();
+    m_mouseStateTracker->Update(mouseState);
 
-    if (m_keyArray['S'])
-    {
-        m_toolInputCommands.back = true;
-    }
-    else m_toolInputCommands.back = false;
-    if (m_keyArray['A'])
-    {
-        m_toolInputCommands.left = true;
-    }
-    else m_toolInputCommands.left = false;
+    auto kbState = m_keyboard->GetState();
 
-    if (m_keyArray['D'])
-    {
-        m_toolInputCommands.right = true;
-    }
-    else m_toolInputCommands.right = false;
-    //rotation
-    if (m_keyArray['E'])
-    {
-        m_toolInputCommands.rotRight = true;
-    }
-    else m_toolInputCommands.rotRight = false;
-    if (m_keyArray['Q'])
-    {
-        m_toolInputCommands.rotLeft = true;
-    }
-    else m_toolInputCommands.rotLeft = false;
-
-    //WASD
+    return{ kbState, *m_mouseStateTracker };
 }

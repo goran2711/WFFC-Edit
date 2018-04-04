@@ -10,9 +10,9 @@
 #include "DisplayObject.h"
 #include "DisplayChunk.h"
 #include "ChunkObject.h"
-#include "InputCommands.h"
 #include <vector>
 
+struct UserInput;
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
@@ -29,7 +29,7 @@ public:
     void SetGridState(bool state);
 
     // Basic game loop
-    void Tick(InputCommands * Input);
+    void Tick(const UserInput& input);
     void Render();
 
     // Rendering helpers
@@ -59,6 +59,7 @@ public:
 private:
 
     void Update(DX::StepTimer const& timer);
+    void Update(DX::StepTimer const& timer, const UserInput& input);
 
     void CreateDeviceDependentResources();
     void CreateWindowSizeDependentResources();
@@ -68,7 +69,6 @@ private:
     //tool specific
     std::vector<DisplayObject>			m_displayList;
     DisplayChunk						m_displayChunk;
-    InputCommands						m_InputCommands;
 
     //functionality
     float								m_movespeed = 0.3f;
@@ -88,11 +88,6 @@ private:
 
     // Rendering loop timer.
     DX::StepTimer                           m_timer;
-
-    // Input devices.
-    std::unique_ptr<DirectX::GamePad>       m_gamePad;
-    std::unique_ptr<DirectX::Keyboard>      m_keyboard;
-    std::unique_ptr<DirectX::Mouse>         m_mouse;
 
     // DirectXTK objects.
     std::unique_ptr<DirectX::CommonStates>                                  m_states;
@@ -126,6 +121,4 @@ private:
     DirectX::SimpleMath::Matrix                                             m_world;
     DirectX::SimpleMath::Matrix                                             m_view;
     DirectX::SimpleMath::Matrix                                             m_projection;
-
-
 };
