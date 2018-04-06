@@ -5,7 +5,6 @@
 #include "pch.h"
 #include "Game.h"
 #include "DisplayObject.h"
-#include "UserInput.h"
 #include <string>
 #include <locale>
 #include <codecvt>
@@ -63,12 +62,12 @@ void Game::SetGridState(bool state)
 
 #pragma region Frame Update
 // Executes the basic game loop.
-void Game::Tick(const UserInput& input)
+void Game::Tick(const Keyboard::State& keyboard, const Mouse::ButtonStateTracker& mouse)
 {
     //copy over the input commands so we have a local version to use elsewhere.
     m_timer.Tick([&]()
     {
-        Update(m_timer, input);
+        Update(m_timer, keyboard, mouse);
     });
 
 #ifdef DXTK_AUDIO
@@ -115,15 +114,15 @@ void Game::Update(DX::StepTimer const& timer)
 #endif
 }
 
-void Game::Update(DX::StepTimer const & timer, const UserInput & input)
+void Game::Update(DX::StepTimer const & timer, const Keyboard::State& keyboard, const Mouse::ButtonStateTracker& mouse)
 {
     //TODO  any more complex than this, and the camera should be abstracted out to somewhere else
     //camera motion is on a plane, so kill the 7 component of the look direction
-    if (input.keyboard.E)
+    if (keyboard.E)
     {
         m_camOrientation.y -= m_camRotRate;
     }
-    if (input.keyboard.Q)
+    if (keyboard.Q)
     {
         m_camOrientation.y += m_camRotRate;
     }
@@ -137,19 +136,19 @@ void Game::Update(DX::StepTimer const & timer, const UserInput & input)
     m_camLookDirection.Cross(Vector3::UnitY, m_camRight);
 
     //process input and update stuff
-    if (input.keyboard.W)
+    if (keyboard.W)
     {
         m_camPosition += m_camLookDirection*m_movespeed;
     }
-    if (input.keyboard.S)
+    if (keyboard.S)
     {
         m_camPosition -= m_camLookDirection*m_movespeed;
     }
-    if (input.keyboard.D)
+    if (keyboard.D)
     {
         m_camPosition += m_camRight*m_movespeed;
     }
-    if (input.keyboard.A)
+    if (keyboard.A)
     {
         m_camPosition -= m_camRight*m_movespeed;
     }

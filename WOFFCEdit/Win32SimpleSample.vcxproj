@@ -185,7 +185,6 @@
     <ClInclude Include="DisplayChunk.h" />
     <ClInclude Include="DisplayObject.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="UserInput.h" />
     <ClInclude Include="MFCFrame.h" />
     <ClInclude Include="MFCRenderFrame.h" />
     <ClInclude Include="pch.h" />

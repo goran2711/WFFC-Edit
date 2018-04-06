@@ -12,8 +12,6 @@
 #include "ChunkObject.h"
 #include <vector>
 
-struct UserInput;
-
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
 class Game : public DX::IDeviceNotify
@@ -29,7 +27,7 @@ public:
     void SetGridState(bool state);
 
     // Basic game loop
-    void Tick(const UserInput& input);
+    void Tick(const DirectX::Keyboard::State& keyboard, const DirectX::Mouse::ButtonStateTracker& mouse);
     void Render();
 
     // Rendering helpers
@@ -59,7 +57,7 @@ public:
 private:
 
     void Update(DX::StepTimer const& timer);
-    void Update(DX::StepTimer const& timer, const UserInput& input);
+    void Update(DX::StepTimer const& timer, const DirectX::Keyboard::State& keyboard, const DirectX::Mouse::ButtonStateTracker& mouse);
 
     void CreateDeviceDependentResources();
     void CreateWindowSizeDependentResources();

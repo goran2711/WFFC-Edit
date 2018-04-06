@@ -5,7 +5,6 @@
 #include "Game.h"
 #include "sqlite3.h"
 #include "SceneObject.h"
-#include "UserInput.h"
 #include <vector>
 
 
@@ -31,7 +30,6 @@ public: //methods
 
     void	Tick(MSG *msg);
     void	UpdateInput(MSG *msg);
-    UserInput    HandleInput();
 
 public:	//variables
     std::vector<SceneObject>    m_sceneGraph;	//our scenegraph storing all the objects in the current chunk

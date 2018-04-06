@@ -105,9 +105,6 @@
     <ClInclude Include="SelectDialogue.h">
       <Filter>MFC</Filter>
     </ClInclude>
-    <ClInclude Include="UserInput.h">
-      <Filter>Tool</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Win32SimpleSample.rc">

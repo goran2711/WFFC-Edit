@@ -262,10 +262,13 @@ void ToolMain::Tick(MSG *msg)
         //add to scenegraph
         //resend scenegraph to Direct X renderer
 
-    UserInput input = HandleInput();
+    auto mouseState = m_mouse->GetState();
+    m_mouseStateTracker->Update(mouseState);
+
+    auto kbState = m_keyboard->GetState();
 
     //Renderer Update Call
-    m_d3dRenderer.Tick(input);
+    m_d3dRenderer.Tick(kbState, *m_mouseStateTracker);
 }
 
 void ToolMain::UpdateInput(MSG * msg)
@@ -312,14 +315,4 @@ void ToolMain::UpdateInput(MSG * msg)
             Keyboard::ProcessMessage(message, wParam, lParam);
             break;
     }
-}
-
-UserInput ToolMain::HandleInput()
-{
-    auto mouseState = m_mouse->GetState();
-    m_mouseStateTracker->Update(mouseState);
-
-    auto kbState = m_keyboard->GetState();
-
-    return{ kbState, *m_mouseStateTracker };
 }
