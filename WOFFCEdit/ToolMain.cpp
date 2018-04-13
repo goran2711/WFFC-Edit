@@ -10,7 +10,7 @@ using StateTracker = Mouse::ButtonStateTracker;
 
 ToolMain::~ToolMain()
 {
-    sqlite3_close(m_databaseConnection);		//close the database connection
+    sqlite3_close(m_databaseConnection);
 }
 
 
@@ -44,8 +44,8 @@ void ToolMain::onActionInitialise(HWND handle, int width, int height)
 
     if (rc)
     {
-        TRACE("Can't open database");
         //if the database cant open. Perhaps a more catastrophic error would be better here
+        TRACE("Can't open database");
     }
     else
     {
@@ -58,21 +58,22 @@ void ToolMain::onActionInitialise(HWND handle, int width, int height)
 void ToolMain::onActionLoad()
 {
     //load current chunk and objects into lists
-    if (!m_sceneGraph.empty())		//is the vector empty
+    if (!m_sceneGraph.empty())
     {
-        m_sceneGraph.clear();		//if not, empty it
+        m_sceneGraph.clear();
     }
 
     //SQL
     int rc;
     char *sqlCommand;
     char *ErrMSG = 0;
-    sqlite3_stmt *pResults;								//results of the query
+    //results of the query
+    sqlite3_stmt *pResults;
     sqlite3_stmt *pResultsChunk;
 
     //OBJECTS IN THE WORLD
     //prepare SQL Text
-    sqlCommand = "SELECT * from Objects";				//sql command which will return all records from the objects table.
+    sqlCommand = "SELECT * from Objects";   //sql command which will return all records from the objects table.
     //Send Command and fill result object
     rc = sqlite3_prepare_v2(m_databaseConnection, sqlCommand, -1, &pResults, 0);
 
@@ -132,8 +133,9 @@ void ToolMain::onActionLoad()
 
     //THE WORLD CHUNK
     //prepare SQL Text
-    sqlCommand = "SELECT * from Chunks";				//sql command which will return all records from  chunks table. There is only one tho.
-                                                        //Send Command and fill result object
+    sqlCommand = "SELECT * from Chunks";    //sql command which will return all records from  chunks table. There is only one tho.
+
+    //Send Command and fill result object
     rc = sqlite3_prepare_v2(m_databaseConnection, sqlCommand, -1, &pResultsChunk, 0);
 
 
@@ -172,7 +174,8 @@ void ToolMain::onActionSave()
     int rc;
     char *sqlCommand;
     char *ErrMSG = 0;
-    sqlite3_stmt *pResults;								//results of the query
+    //results of the query
+    sqlite3_stmt *pResults;
 
 
     //OBJECTS IN THE WORLD Delete them all
@@ -254,21 +257,13 @@ void ToolMain::OnWindowSizeChanged(int width, int height)
 
 void ToolMain::Tick(MSG *msg)
 {
-    //do we have a selection
-    //do we have a mode
-    //are we clicking / dragging /releasing
-    //has something changed
-        //update Scenegraph
-        //add to scenegraph
-        //resend scenegraph to Direct X renderer
-
     auto mouseState = m_mouse->GetState();
     m_mouseStateTracker->Update(mouseState);
 
     auto kbState = m_keyboard->GetState();
 
     //Renderer Update Call
-    m_d3dRenderer.Tick(kbState, *m_mouseStateTracker);
+    m_d3dRenderer.Tick(*m_mouseStateTracker);
 }
 
 void ToolMain::UpdateInput(MSG * msg)
@@ -279,18 +274,9 @@ void ToolMain::UpdateInput(MSG * msg)
 
     switch (message)
     {
-        //Global inputs,  mouse position and keys etc
-        //case WM_KEYDOWN:
-        //    m_keyArray[msg->wParam] = true;
-        //    break;
-
-        //case WM_KEYUP:
-        //    m_keyArray[msg->wParam] = false;
-        //    break;
-
         case WM_ACTIVATEAPP:
-            Keyboard::ProcessMessage(message, wParam, lParam);
             Mouse::ProcessMessage(message, wParam, lParam);
+            Keyboard::ProcessMessage(message, wParam, lParam);
             break;
 
         case WM_INPUT:

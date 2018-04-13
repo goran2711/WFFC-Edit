@@ -62,12 +62,12 @@ void Game::SetGridState(bool state)
 
 #pragma region Frame Update
 // Executes the basic game loop.
-void Game::Tick(const Keyboard::State& keyboard, const Mouse::ButtonStateTracker& mouse)
+void Game::Tick(const Mouse::ButtonStateTracker& mouse)
 {
     //copy over the input commands so we have a local version to use elsewhere.
     m_timer.Tick([&]()
     {
-        Update(m_timer, keyboard, mouse);
+        Update(m_timer, mouse);
     });
 
 #ifdef DXTK_AUDIO
@@ -114,10 +114,12 @@ void Game::Update(DX::StepTimer const& timer)
 #endif
 }
 
-void Game::Update(DX::StepTimer const & timer, const Keyboard::State& keyboard, const Mouse::ButtonStateTracker& mouse)
+void Game::Update(DX::StepTimer const & timer, const Mouse::ButtonStateTracker& mouse)
 {
     //TODO  any more complex than this, and the camera should be abstracted out to somewhere else
     //camera motion is on a plane, so kill the 7 component of the look direction
+    auto keyboard = Keyboard::Get().GetState();
+
     if (keyboard.E)
     {
         m_camOrientation.y -= m_camRotRate;
