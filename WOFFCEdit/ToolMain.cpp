@@ -307,4 +307,17 @@ void ToolMain::HandleInput()
 
     auto kbState = m_keyboard->GetState();
     m_kbTracker->Update(kbState);
+
+    // Activate FPS camera
+    if (m_kbTracker->IsKeyPressed(Keyboard::Space))
+    {
+        m_fpsCameraActive = !m_fpsCameraActive;
+
+        Mouse::Mode mode = Mouse::MODE_ABSOLUTE;
+
+        if (!m_fpsCameraActive)
+            mode = Mouse::MODE_RELATIVE;
+
+        m_mouse->SetMode(mode);
+    }
 }
