@@ -6,7 +6,6 @@
 using DirectX::GamePad;
 using DirectX::Keyboard;
 using DirectX::Mouse;
-using StateTracker = Mouse::ButtonStateTracker;
 
 ToolMain::~ToolMain()
 {
@@ -32,11 +31,12 @@ void ToolMain::onActionInitialise(HWND handle, int width, int height)
     m_gamePad = std::make_unique<GamePad>();
 
     m_keyboard = std::make_unique<Keyboard>();
+    m_kbTracker = std::make_unique<Keyboard::KeyboardStateTracker>();
 
     m_mouse = std::make_unique<Mouse>();
     m_mouse->SetWindow(m_toolHandle);
 
-    m_mouseStateTracker = std::make_unique<StateTracker>();
+    m_mouseTracker = std::make_unique<Mouse::ButtonStateTracker>();
 
     //database connection establish
     int rc;
@@ -257,13 +257,10 @@ void ToolMain::OnWindowSizeChanged(int width, int height)
 
 void ToolMain::Tick(MSG *msg)
 {
-    auto mouseState = m_mouse->GetState();
-    m_mouseStateTracker->Update(mouseState);
-
-    auto kbState = m_keyboard->GetState();
+    HandleInput();
 
     //Renderer Update Call
-    m_d3dRenderer.Tick(*m_mouseStateTracker);
+    m_d3dRenderer.Tick(*m_kbTracker, *m_mouseTracker);
 }
 
 void ToolMain::UpdateInput(MSG * msg)
@@ -301,4 +298,13 @@ void ToolMain::UpdateInput(MSG * msg)
             Keyboard::ProcessMessage(message, wParam, lParam);
             break;
     }
+}
+
+void ToolMain::HandleInput()
+{
+    auto mouseState = m_mouse->GetState();
+    m_mouseTracker->Update(mouseState);
+
+    auto kbState = m_keyboard->GetState();
+    m_kbTracker->Update(kbState);
 }

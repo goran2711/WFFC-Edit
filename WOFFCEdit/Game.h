@@ -27,7 +27,7 @@ public:
     void SetGridState(bool state);
 
     // Basic game loop
-    void Tick(const DirectX::Mouse::ButtonStateTracker& mouse);
+    void Tick(const DirectX::Keyboard::KeyboardStateTracker& kbTracker, const DirectX::Mouse::ButtonStateTracker& mouseTracker);
     void Render();
 
     // Rendering helpers
@@ -57,7 +57,7 @@ public:
 private:
 
     void Update(DX::StepTimer const& timer);
-    void Update(DX::StepTimer const& timer, const DirectX::Mouse::ButtonStateTracker& mouse);
+    void Update(DX::StepTimer const& timer, const DirectX::Keyboard::KeyboardStateTracker& kbTracker, const DirectX::Mouse::ButtonStateTracker& mouse);
 
     void CreateDeviceDependentResources();
     void CreateWindowSizeDependentResources();
