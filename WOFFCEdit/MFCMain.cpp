@@ -31,10 +31,12 @@ BOOL MFCMain::InitInstance()
 
     //get the rect from the MFC window so we can get its dimensions
     m_toolHandle = m_frame->m_DirXView.GetSafeHwnd();				//handle of directX child window
-    m_frame->m_DirXView.GetClientRect(&WindowRECT);
-    m_width = WindowRECT.Width();
-    m_height = WindowRECT.Height();
 
+    CRect clientRect;
+    m_frame->m_DirXView.GetClientRect(&clientRect);
+
+    m_width = clientRect.Width();
+    m_height = clientRect.Height();
     m_ToolSystem.onActionInitialise(m_toolHandle, m_width, m_height);
 
     m_frame->m_DirXView.toolSystem = &m_ToolSystem;
