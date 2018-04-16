@@ -4,10 +4,13 @@
 #include <sstream>
 #include <cassert>
 
+using DirectX::GamePad;
+using DirectX::Keyboard;
+using DirectX::Mouse;
 
 ToolMain::~ToolMain()
 {
-    sqlite3_close(m_databaseConnection);		//close the database connection
+    sqlite3_close(m_databaseConnection);
 }
 
 
@@ -25,6 +28,18 @@ void ToolMain::onActionInitialise(HWND handle, int width, int height)
 
     m_d3dRenderer.Initialize(handle, m_width, m_height);
 
+    // Initialise user input devices
+    m_gamePad = std::make_unique<GamePad>();
+
+    m_keyboard = std::make_unique<Keyboard>();
+    m_kbTracker = std::make_unique<Keyboard::KeyboardStateTracker>();
+
+    m_mouse = std::make_unique<Mouse>();
+    m_mouse->SetWindow(handle);
+    m_mouseTracker = std::make_unique<Mouse::ButtonStateTracker>();
+
+    m_d3dRenderer.InitialiseInput(*m_mouseTracker, *m_kbTracker);
+
     //database connection establish
     int rc = sqlite3_open_v2("database/test.db", &m_databaseConnection, SQLITE_OPEN_READWRITE, nullptr);
 
@@ -36,21 +51,22 @@ void ToolMain::onActionInitialise(HWND handle, int width, int height)
 void ToolMain::onActionLoad()
 {
     //load current chunk and objects into lists
-    if (!m_sceneGraph.empty())		//is the vector empty
+    if (!m_sceneGraph.empty())
     {
-        m_sceneGraph.clear();		//if not, empty it
+        m_sceneGraph.clear();
     }
 
     //SQL
     int rc;
     char *sqlCommand;
     char *ErrMSG = 0;
-    sqlite3_stmt *pResults;								//results of the query
+    //results of the query
+    sqlite3_stmt *pResults;
     sqlite3_stmt *pResultsChunk;
 
     //OBJECTS IN THE WORLD
     //prepare SQL Text
-    sqlCommand = "SELECT * from Objects";				//sql command which will return all records from the objects table.
+    sqlCommand = "SELECT * from Objects";   //sql command which will return all records from the objects table.
     //Send Command and fill result object
     rc = sqlite3_prepare_v2(m_databaseConnection, sqlCommand, -1, &pResults, 0);
 
@@ -110,8 +126,9 @@ void ToolMain::onActionLoad()
 
     //THE WORLD CHUNK
     //prepare SQL Text
-    sqlCommand = "SELECT * from Chunks";				//sql command which will return all records from  chunks table. There is only one tho.
-                                                        //Send Command and fill result object
+    sqlCommand = "SELECT * from Chunks";    //sql command which will return all records from  chunks table. There is only one tho.
+
+    //Send Command and fill result object
     rc = sqlite3_prepare_v2(m_databaseConnection, sqlCommand, -1, &pResultsChunk, 0);
 
 
@@ -150,7 +167,8 @@ void ToolMain::onActionSave()
     int rc;
     char *sqlCommand;
     char *ErrMSG = 0;
-    sqlite3_stmt *pResults;								//results of the query
+    //results of the query
+    sqlite3_stmt *pResults;
 
 
     //OBJECTS IN THE WORLD Delete them all
@@ -232,75 +250,56 @@ void ToolMain::OnWindowSizeChanged(int width, int height)
 
 void ToolMain::Tick(MSG *msg)
 {
-    //do we have a selection
-    //do we have a mode
-    //are we clicking / dragging /releasing
-    //has something changed
-        //update Scenegraph
-        //add to scenegraph
-        //resend scenegraph to Direct X renderer
+    // Inputs
+    auto mouse = m_mouse->GetState();
+    m_mouseTracker->Update(mouse);
+
+    auto keyboard = m_keyboard->GetState();
+    m_kbTracker->Update(keyboard);
+
+    if (m_kbTracker->IsKeyPressed(Keyboard::Space))
+    {
+        m_fpsCameraActive = !m_fpsCameraActive;
+        m_mouse->SetMode(m_fpsCameraActive ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
+    }
 
     //Renderer Update Call
-    m_d3dRenderer.Tick(&m_toolInputCommands);
+    m_d3dRenderer.Tick(mouse, keyboard);
 }
 
 void ToolMain::UpdateInput(MSG * msg)
 {
+    UINT message = msg->message;
+    WPARAM wParam = msg->wParam;
+    LPARAM lParam = msg->lParam;
 
-    switch (msg->message)
+    switch (message)
     {
-        //Global inputs,  mouse position and keys etc
-        case WM_KEYDOWN:
-            m_keyArray[msg->wParam] = true;
+        case WM_ACTIVATEAPP:
+            Mouse::ProcessMessage(message, wParam, lParam);
+            Keyboard::ProcessMessage(message, wParam, lParam);
             break;
 
-        case WM_KEYUP:
-            m_keyArray[msg->wParam] = false;
-            break;
-
+        case WM_INPUT:
         case WM_MOUSEMOVE:
+        case WM_LBUTTONDOWN:
+        case WM_LBUTTONUP:
+        case WM_RBUTTONDOWN:
+        case WM_RBUTTONUP:
+        case WM_MBUTTONDOWN:
+        case WM_MBUTTONUP:
+        case WM_MOUSEWHEEL:
+        case WM_XBUTTONDOWN:
+        case WM_XBUTTONUP:
+        case WM_MOUSEHOVER:
+            Mouse::ProcessMessage(message, wParam, lParam);
             break;
 
-        case WM_LBUTTONDOWN:	//mouse button down,  you will probably need to check when its up too
-            //set some flag for the mouse button in inputcommands
+        case WM_KEYDOWN:
+        case WM_KEYUP:
+        case WM_SYSKEYUP:
+        case WM_SYSKEYDOWN:
+            Keyboard::ProcessMessage(message, wParam, lParam);
             break;
-
     }
-    //here we update all the actual app functionality that we want.  This information will either be used int toolmain, or sent down to the renderer (Camera movement etc
-    //WASD movement
-    if (m_keyArray['W'])
-    {
-        m_toolInputCommands.forward = true;
-    }
-    else m_toolInputCommands.forward = false;
-
-    if (m_keyArray['S'])
-    {
-        m_toolInputCommands.back = true;
-    }
-    else m_toolInputCommands.back = false;
-    if (m_keyArray['A'])
-    {
-        m_toolInputCommands.left = true;
-    }
-    else m_toolInputCommands.left = false;
-
-    if (m_keyArray['D'])
-    {
-        m_toolInputCommands.right = true;
-    }
-    else m_toolInputCommands.right = false;
-    //rotation
-    if (m_keyArray['E'])
-    {
-        m_toolInputCommands.rotRight = true;
-    }
-    else m_toolInputCommands.rotRight = false;
-    if (m_keyArray['Q'])
-    {
-        m_toolInputCommands.rotLeft = true;
-    }
-    else m_toolInputCommands.rotLeft = false;
-
-    //WASD
 }

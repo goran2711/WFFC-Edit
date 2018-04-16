@@ -92,9 +92,6 @@
     <ClInclude Include="DisplayObject.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="InputCommands.h">
-      <Filter>Tool</Filter>
-    </ClInclude>
     <ClInclude Include="MFCFrame.h">
       <Filter>MFC</Filter>
     </ClInclude>

@@ -8,12 +8,10 @@
 #include "StepTimer.h"
 #include "DisplayObject.h"
 #include "DisplayChunk.h"
-#include "InputCommands.h"
 #include "DeviceResources.h"
 
 struct ChunkObject;
 struct SceneObject;
-
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
 class Game : public DX::IDeviceNotify
@@ -22,6 +20,9 @@ class Game : public DX::IDeviceNotify
     constexpr static float NEAR_PLANE = 0.01f;
     constexpr static float FAR_PLANE = 1000.f;
 
+    constexpr static float MOUSE_SENSITIVITY = 1.f;
+    constexpr static float MOUSE_SMOOTH_FACTOR = 0.5f;
+
 public:
 
     // Initialization and management
@@ -29,7 +30,7 @@ public:
     void SetGridState(bool state);
 
     // Basic game loop
-    void Tick(InputCommands * Input);
+    void Tick(DirectX::Mouse::State& mouse, DirectX::Keyboard::State& keyboard);
     void Render();
 
     // Rendering helpers
@@ -52,13 +53,16 @@ public:
     void SaveDisplayChunk(ChunkObject *SceneChunk);	//saves geometry et al
     void ClearDisplayList();
 
+    //input
+    void InitialiseInput(DirectX::Mouse::ButtonStateTracker& mouseTracker, DirectX::Keyboard::KeyboardStateTracker& keyboardTracker);
+
 #ifdef DXTK_AUDIO
     void NewAudioDevice();
 #endif
 
 private:
 
-    void Update(DX::StepTimer const& timer);
+    void Update(DX::StepTimer const& timer, DirectX::Mouse::State& mouse, DirectX::Keyboard::State& keyboard);
 
     void CreateDeviceDependentResources();
     void CreateWindowSizeDependentResources();
@@ -68,10 +72,12 @@ private:
     //tool specific
     std::vector<DisplayObject>			m_displayList;
     DisplayChunk						m_displayChunk;
-    InputCommands						m_InputCommands;
 
     //functionality
     float								m_movespeed = 0.3f;
+
+    //store last frame's cursor delta movement for smoothing
+    DirectX::SimpleMath::Vector3        m_smoothDelta;
 
     //camera
     DirectX::SimpleMath::Vector3		m_camPosition{ 0.f, 3.7f, -3.5f };
@@ -88,11 +94,6 @@ private:
 
     // Rendering loop timer.
     DX::StepTimer                           m_timer;
-
-    // Input devices.
-    std::unique_ptr<DirectX::GamePad>       m_gamePad;
-    std::unique_ptr<DirectX::Keyboard>      m_keyboard;
-    std::unique_ptr<DirectX::Mouse>         m_mouse;
 
     // DirectXTK objects.
     std::unique_ptr<DirectX::CommonStates>                                  m_states;
@@ -127,5 +128,7 @@ private:
     DirectX::SimpleMath::Matrix                                             m_view;
     DirectX::SimpleMath::Matrix                                             m_projection;
 
-
+    // Input
+    DirectX::Mouse::ButtonStateTracker* m_mouseTracker;
+    DirectX::Keyboard::KeyboardStateTracker* m_keyboardTracker;
 };
