@@ -20,6 +20,9 @@ class Game : public DX::IDeviceNotify
     constexpr static float NEAR_PLANE = 0.01f;
     constexpr static float FAR_PLANE = 1000.f;
 
+    constexpr static float MOUSE_SENSITIVITY = 1.f;
+    constexpr static float MOUSE_SMOOTH_FACTOR = 0.5f;
+
 public:
 
     // Initialization and management
@@ -27,7 +30,7 @@ public:
     void SetGridState(bool state);
 
     // Basic game loop
-    void Tick(const DirectX::Keyboard::KeyboardStateTracker& kbTracker, const DirectX::Mouse::ButtonStateTracker& mouseTracker);
+    void Tick(DirectX::Mouse::State& mouse, DirectX::Keyboard::State& keyboard);
     void Render();
 
     // Rendering helpers
@@ -50,14 +53,16 @@ public:
     void SaveDisplayChunk(ChunkObject *SceneChunk);	//saves geometry et al
     void ClearDisplayList();
 
+    //input
+    void InitialiseInput(DirectX::Mouse::ButtonStateTracker& mouseTracker, DirectX::Keyboard::KeyboardStateTracker& keyboardTracker);
+
 #ifdef DXTK_AUDIO
     void NewAudioDevice();
 #endif
 
 private:
 
-    void Update(DX::StepTimer const& timer);
-    void Update(DX::StepTimer const& timer, const DirectX::Keyboard::KeyboardStateTracker& kbTracker, const DirectX::Mouse::ButtonStateTracker& mouse);
+    void Update(DX::StepTimer const& timer, DirectX::Mouse::State& mouse, DirectX::Keyboard::State& keyboard);
 
     void CreateDeviceDependentResources();
     void CreateWindowSizeDependentResources();
@@ -70,6 +75,9 @@ private:
 
     //functionality
     float								m_movespeed = 0.3f;
+
+    //store last frame's cursor delta movement for smoothing
+    DirectX::SimpleMath::Vector3        m_smoothDelta;
 
     //camera
     DirectX::SimpleMath::Vector3		m_camPosition{ 0.f, 3.7f, -3.5f };
@@ -119,4 +127,8 @@ private:
     DirectX::SimpleMath::Matrix                                             m_world;
     DirectX::SimpleMath::Matrix                                             m_view;
     DirectX::SimpleMath::Matrix                                             m_projection;
+
+    // Input
+    DirectX::Mouse::ButtonStateTracker* m_mouseTracker;
+    DirectX::Keyboard::KeyboardStateTracker* m_keyboardTracker;
 };

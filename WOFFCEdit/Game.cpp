@@ -62,12 +62,12 @@ void Game::SetGridState(bool state)
 
 #pragma region Frame Update
 // Executes the basic game loop.
-void Game::Tick(const Keyboard::KeyboardStateTracker& kbTracker, const Mouse::ButtonStateTracker& mouseTracker)
+void Game::Tick(DirectX::Mouse::State& mouse, DirectX::Keyboard::State& keyboard)
 {
     //copy over the input commands so we have a local version to use elsewhere.
     m_timer.Tick([&]()
     {
-        Update(m_timer, kbTracker, mouseTracker);
+        Update(m_timer, mouse, keyboard);
     });
 
 #ifdef DXTK_AUDIO
@@ -83,9 +83,83 @@ void Game::Tick(const Keyboard::KeyboardStateTracker& kbTracker, const Mouse::Bu
     Render();
 }
 
-// Updates the world.
-void Game::Update(DX::StepTimer const& timer)
+void Game::Update(DX::StepTimer const & timer, Mouse::State& mouse, Keyboard::State& keyboard)
 {
+    //TODO  any more complex than this, and the camera should be abstracted out to somewhere else
+    //camera motion is on a plane, so kill the 7 component of the look direction
+    if (mouse.positionMode == Mouse::MODE_RELATIVE)
+    {
+        Vector3 delta = Vector3(float(mouse.x), float(mouse.y), 0.f) * MOUSE_SENSITIVITY;
+
+        // Mouse smoothing
+        m_smoothDelta = ((1.f - MOUSE_SMOOTH_FACTOR) * delta) + (MOUSE_SMOOTH_FACTOR * m_smoothDelta);
+
+        m_camOrientation.y -= m_smoothDelta.x;
+        m_camOrientation.x -= m_smoothDelta.y;
+
+        // Prevent gimbal lock
+        constexpr float LIMIT = 89.f;
+        m_camOrientation.x = std::fminf(m_camOrientation.x, +LIMIT);
+        m_camOrientation.x = std::fmaxf(m_camOrientation.x, -LIMIT);
+    }
+    else
+    {
+        if (keyboard.E)
+        {
+            m_camOrientation.y -= m_camRotRate;
+        }
+        if (keyboard.Q)
+        {
+            m_camOrientation.y += m_camRotRate;
+        }
+    }
+
+    //create look direction from Euler angles in m_camOrientation
+    float ry = XMConvertToRadians(m_camOrientation.y);
+    float rx = XMConvertToRadians(m_camOrientation.x);
+
+    float cosY = cosf(ry);
+    float cosP = cosf(rx);
+    float sinY = sinf(ry);
+    float sinP = sinf(rx);
+
+    m_camLookDirection.x = sinY * cosP;
+    m_camLookDirection.y = sinP;
+    m_camLookDirection.z = cosP * cosY;
+    m_camLookDirection.Normalize();
+
+    //create right vector from look Direction
+    m_camLookDirection.Cross(Vector3::UnitY, m_camRight);
+    m_camRight.Normalize();
+
+    //process input and update stuff
+    if (keyboard.W)
+    {
+        m_camPosition += m_camLookDirection*m_movespeed;
+    }
+    if (keyboard.S)
+    {
+        m_camPosition -= m_camLookDirection*m_movespeed;
+    }
+    if (keyboard.D)
+    {
+        m_camPosition += m_camRight*m_movespeed;
+    }
+    if (keyboard.A)
+    {
+        m_camPosition -= m_camRight*m_movespeed;
+    }
+
+    //update lookat point
+    m_camLookAt = m_camPosition + m_camLookDirection;
+
+    //apply camera vectors
+    m_view = Matrix::CreateLookAt(m_camPosition, m_camLookAt, Vector3::UnitY);
+
+    m_batchEffect->SetView(m_view);
+    m_batchEffect->SetWorld(Matrix::Identity);
+    m_displayChunk.m_terrainEffect->SetView(m_view);
+
     m_displayChunk.m_terrainEffect->SetWorld(Matrix::Identity);
 
 #ifdef DXTK_AUDIO
@@ -112,60 +186,6 @@ void Game::Update(DX::StepTimer const& timer)
         }
     }
 #endif
-}
-
-void Game::Update(DX::StepTimer const & timer, const Keyboard::KeyboardStateTracker& kbTracker, const Mouse::ButtonStateTracker& mouseTracker)
-{
-    //TODO  any more complex than this, and the camera should be abstracted out to somewhere else
-    //camera motion is on a plane, so kill the 7 component of the look direction
-    auto kbState = Keyboard::Get().GetState();
-
-    if (kbState.E)
-    {
-        m_camOrientation.y -= m_camRotRate;
-    }
-    if (kbState.Q)
-    {
-        m_camOrientation.y += m_camRotRate;
-    }
-
-    //create look direction from Euler angles in m_camOrientation
-    m_camLookDirection.x = sinf(XMConvertToRadians(m_camOrientation.y));
-    m_camLookDirection.z = cosf(XMConvertToRadians(m_camOrientation.y));
-    m_camLookDirection.Normalize();
-
-    //create right vector from look Direction
-    m_camLookDirection.Cross(Vector3::UnitY, m_camRight);
-
-    //process input and update stuff
-    if (kbState.W)
-    {
-        m_camPosition += m_camLookDirection*m_movespeed;
-    }
-    if (kbState.S)
-    {
-        m_camPosition -= m_camLookDirection*m_movespeed;
-    }
-    if (kbState.D)
-    {
-        m_camPosition += m_camRight*m_movespeed;
-    }
-    if (kbState.A)
-    {
-        m_camPosition -= m_camRight*m_movespeed;
-    }
-
-    //update lookat point
-    m_camLookAt = m_camPosition + m_camLookDirection;
-
-    //apply camera vectors
-    m_view = Matrix::CreateLookAt(m_camPosition, m_camLookAt, Vector3::UnitY);
-
-    m_batchEffect->SetView(m_view);
-    m_batchEffect->SetWorld(Matrix::Identity);
-    m_displayChunk.m_terrainEffect->SetView(m_view);
-
-    Update(timer);
 }
 
 #pragma endregion
@@ -426,6 +446,12 @@ void Game::BuildDisplayChunk(ChunkObject * SceneChunk)
 void Game::SaveDisplayChunk(ChunkObject * SceneChunk)
 {
     m_displayChunk.SaveHeightMap();			//save heightmap to file.
+}
+
+void Game::InitialiseInput(Mouse::ButtonStateTracker& mouseTracker, Keyboard::KeyboardStateTracker& keyboardTracker)
+{
+    m_mouseTracker = &mouseTracker;
+    m_keyboardTracker = &keyboardTracker;
 }
 
 #ifdef DXTK_AUDIO

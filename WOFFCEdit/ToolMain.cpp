@@ -34,9 +34,10 @@ void ToolMain::onActionInitialise(HWND handle, int width, int height)
     m_kbTracker = std::make_unique<Keyboard::KeyboardStateTracker>();
 
     m_mouse = std::make_unique<Mouse>();
-    m_mouse->SetWindow(m_toolHandle);
-
+    m_mouse->SetWindow(handle);
     m_mouseTracker = std::make_unique<Mouse::ButtonStateTracker>();
+
+    m_d3dRenderer.InitialiseInput(*m_mouseTracker, *m_kbTracker);
 
     //database connection establish
     int rc;
@@ -257,10 +258,21 @@ void ToolMain::OnWindowSizeChanged(int width, int height)
 
 void ToolMain::Tick(MSG *msg)
 {
-    HandleInput();
+    // Inputs
+    auto mouse = m_mouse->GetState();
+    m_mouseTracker->Update(mouse);
+
+    auto keyboard = m_keyboard->GetState();
+    m_kbTracker->Update(keyboard);
+
+    if (m_kbTracker->IsKeyPressed(Keyboard::Space))
+    {
+        m_fpsCameraActive = !m_fpsCameraActive;
+        m_mouse->SetMode(m_fpsCameraActive ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
+    }
 
     //Renderer Update Call
-    m_d3dRenderer.Tick(*m_kbTracker, *m_mouseTracker);
+    m_d3dRenderer.Tick(mouse, keyboard);
 }
 
 void ToolMain::UpdateInput(MSG * msg)
@@ -292,32 +304,10 @@ void ToolMain::UpdateInput(MSG * msg)
             break;
 
         case WM_KEYDOWN:
-        case WM_SYSKEYDOWN:
         case WM_KEYUP:
         case WM_SYSKEYUP:
+        case WM_SYSKEYDOWN:
             Keyboard::ProcessMessage(message, wParam, lParam);
             break;
-    }
-}
-
-void ToolMain::HandleInput()
-{
-    auto mouseState = m_mouse->GetState();
-    m_mouseTracker->Update(mouseState);
-
-    auto kbState = m_keyboard->GetState();
-    m_kbTracker->Update(kbState);
-
-    // Activate FPS camera
-    if (m_kbTracker->IsKeyPressed(Keyboard::Space))
-    {
-        m_fpsCameraActive = !m_fpsCameraActive;
-
-        Mouse::Mode mode = Mouse::MODE_ABSOLUTE;
-
-        if (!m_fpsCameraActive)
-            mode = Mouse::MODE_RELATIVE;
-
-        m_mouse->SetMode(mode);
     }
 }

@@ -39,11 +39,10 @@ public:
     ChunkObject					m_chunk;		//our landscape chunk
     int m_selectedObject = 0;					//ID of current Selection
 
+
 private:
     // functions
     void	onContentAdded();
-
-    void    HandleInput();
 
 
     //variables
