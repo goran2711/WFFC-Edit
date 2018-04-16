@@ -36,8 +36,7 @@ void Game::Initialize(HWND window, int width, int height)
     eflags = eflags | AudioEngine_Debug;
 #endif
 
-    // Custom deleter to ensure the audio engine is suspended upon deletion of the Game object due to the multi-threaded nature of XAudio2
-    m_audEngine = std::make_unique<AudioEngine>(eflags, [](AudioEngine* audEngine) { audEngine->Suspend(); delete audEngine; });
+    m_audEngine.reset(new AudioEngine(eflags));
 
     m_audioEvent = 0;
     m_audioTimerAcc = 10.f;

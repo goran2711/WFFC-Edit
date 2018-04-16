@@ -12,6 +12,7 @@
 
 struct ChunkObject;
 struct SceneObject;
+
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
 class Game : public DX::IDeviceNotify
@@ -106,7 +107,10 @@ private:
     std::unique_ptr<DirectX::SpriteFont>                                    m_font;
 
 #ifdef DXTK_AUDIO
-    std::unique_ptr<DirectX::AudioEngine>                                   m_audEngine;
+    using AudioEngineDeleter = void(*)(DirectX::AudioEngine*);
+
+    // Custom deleter to ensure the audio engine is suspended upon deletion of the Game object due to the multi-threaded nature of XAudio2
+    std::unique_ptr<DirectX::AudioEngine, AudioEngineDeleter>               m_audEngine{ nullptr, [](DirectX::AudioEngine* audEngine) { audEngine->Suspend(); delete audEngine; } };
     std::unique_ptr<DirectX::WaveBank>                                      m_waveBank;
     std::unique_ptr<DirectX::SoundEffect>                                   m_soundEffect;
     std::unique_ptr<DirectX::SoundEffectInstance>                           m_effect1;
