@@ -367,22 +367,24 @@ void Game::BuildDisplayList(std::vector<SceneObject> * SceneGraph)
     }
 
     //for every item in the scenegraph
-    int numObjects = SceneGraph->size();
+    const int numObjects = SceneGraph->size();
     for (int i = 0; i < numObjects; i++)
     {
+        const SceneObject& sceneObject = (*SceneGraph)[i];
+
         //create a temp display object that we will populate then append to the display list.
         DisplayObject newDisplayObject;
+        newDisplayObject.m_ID = sceneObject.ID;
 
         //load model
         std::wstring_convert<std::codecvt_utf8<wchar_t>> convertToWide;
-        std::wstring modelwstr = convertToWide.from_bytes(SceneGraph->at(i).model_path);							//convect string to Wchar
+        std::wstring modelwstr = convertToWide.from_bytes(sceneObject.model_path);							//convect string to Wchar
         newDisplayObject.m_model = Model::CreateFromCMO(device, modelwstr.c_str(), *m_fxFactory, true);	//get DXSDK to load model "False" for LH coordinate system (maya)
 
         //Load Texture
-        std::wstring texturewstr = convertToWide.from_bytes(SceneGraph->at(i).tex_diffuse_path);								//convect string to Wchar
-        HRESULT rs;
+        std::wstring texturewstr = convertToWide.from_bytes(sceneObject.tex_diffuse_path);								//convect string to Wchar
         ID3D11ShaderResourceView* texture_diffuse = nullptr;
-        rs = CreateDDSTextureFromFile(device, texturewstr.c_str(), nullptr, &texture_diffuse);	//load tex into Shader resource
+        HRESULT rs = CreateDDSTextureFromFile(device, texturewstr.c_str(), nullptr, &texture_diffuse);	//load tex into Shader resource
 
         //if texture fails.  load error default
         if (rs)
@@ -404,29 +406,26 @@ void Game::BuildDisplayList(std::vector<SceneObject> * SceneGraph)
         });
 
         //set position
-        newDisplayObject.m_position.x = SceneGraph->at(i).posX;
-        newDisplayObject.m_position.y = SceneGraph->at(i).posY;
-        newDisplayObject.m_position.z = SceneGraph->at(i).posZ;
+        newDisplayObject.m_position.x = sceneObject.posX;
+        newDisplayObject.m_position.y = sceneObject.posY;
+        newDisplayObject.m_position.z = sceneObject.posZ;
 
         //setorientation
-        newDisplayObject.m_orientation.x = SceneGraph->at(i).rotX;
-        newDisplayObject.m_orientation.y = SceneGraph->at(i).rotY;
-        newDisplayObject.m_orientation.z = SceneGraph->at(i).rotZ;
+        newDisplayObject.m_orientation.x = sceneObject.rotX;
+        newDisplayObject.m_orientation.y = sceneObject.rotY;
+        newDisplayObject.m_orientation.z = sceneObject.rotZ;
 
         //set scale
-        newDisplayObject.m_scale.x = SceneGraph->at(i).scaX;
-        newDisplayObject.m_scale.y = SceneGraph->at(i).scaY;
-        newDisplayObject.m_scale.z = SceneGraph->at(i).scaZ;
+        newDisplayObject.m_scale.x = sceneObject.scaX;
+        newDisplayObject.m_scale.y = sceneObject.scaY;
+        newDisplayObject.m_scale.z = sceneObject.scaZ;
 
         //set wireframe / render flags
-        newDisplayObject.m_render = SceneGraph->at(i).editor_render;
-        newDisplayObject.m_wireframe = SceneGraph->at(i).editor_wireframe;
+        newDisplayObject.m_render = sceneObject.editor_render;
+        newDisplayObject.m_wireframe = sceneObject.editor_wireframe;
 
         m_displayList.push_back(newDisplayObject);
     }
-
-
-
 }
 
 void Game::BuildDisplayChunk(ChunkObject * SceneChunk)
